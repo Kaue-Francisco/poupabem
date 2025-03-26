@@ -1,8 +1,8 @@
 ################################################################
 # Imports
 
-from database_instance import app
-from routes.user_routes import user_routes
+from database_instance import app              # Importando a instância do Flask
+from routes.user_routes import user_routes     # Importando as rotas de usuário 
 
 ################################################################
 # Main

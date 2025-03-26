@@ -1,16 +1,14 @@
 ################################################################
-#region Imports
+# Imports
 
-from models.user_model import User
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, timedelta
-import bcrypt
-
-# Bilbioteca para criar token de sessão
-import jwt
+from models.user_model import User          # Importa o modelo de usuário
+from flask_sqlalchemy import SQLAlchemy     # Importa o SQLAlchemy para conexão com o banco de dados
+from datetime import datetime, timedelta    # Importa datetime e timedelta 
+import bcrypt                               # Importa bcrypt para criptografia
+import jwt                                  # Importa jwt para token de sessão
 
 ################################################################
-#region Main
+# Main
 
 class UserService:
 

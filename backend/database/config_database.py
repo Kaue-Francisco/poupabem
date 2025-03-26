@@ -18,18 +18,14 @@ class DatabaseConnect:
 
     ################################################################
     def init_app(self):
+        """ Inicializa a aplicação """
+
         # Substitua os valores abaixo pelos detalhes do seu banco de dados PostgreSQL
         self.app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:root@localhost:5432/poupabem'
         self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         db.init_app(self.app)
-        self.create_tables()
-
-    ################################################################
-    def create_tables(self):
-        with self.app.app_context():
-            db.create_all()
-            db.session.commit()
 
     ################################################################
     def get_db(self):
+        """ Retorna a instância do banco de dados """
         return db

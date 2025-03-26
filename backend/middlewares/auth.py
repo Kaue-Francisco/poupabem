@@ -9,6 +9,8 @@ from functools import wraps
 
 # Middleware para autenticação
 def validate_auth(func):
+    """ Middleware para autenticação """
+    
     @wraps(func)
     def wrapper(*args, **kwargs):
         token = request.headers.get('Authorization')

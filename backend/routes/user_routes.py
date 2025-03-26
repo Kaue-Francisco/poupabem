@@ -1,9 +1,9 @@
 ################################################################
 #region Imports
 
-from flask import Blueprint, request, jsonify
-from middlewares.auth import validate_auth
-from controllers.user_controller import UserController
+from flask import Blueprint, request, jsonify            # Registrar as rotas e métodos HTTP
+from middlewares.auth import validate_auth               # Middleware de autenticação
+from controllers.user_controller import UserController   # Controller de usuário
 
 ################################################################
 #region Main
