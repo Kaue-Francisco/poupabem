@@ -5,7 +5,7 @@ from models.user_model import User          # Importa o modelo de usuário
 from flask_sqlalchemy import SQLAlchemy     # Importa o SQLAlchemy para conexão com o banco de dados
 from datetime import datetime, timedelta    # Importa datetime e timedelta 
 import bcrypt                               # Importa bcrypt para criptografia
-import jwt                                  # Importa jwt para token de sessão
+import jwt as pyjwt                         # Importa jwt para token de sessão
 
 ################################################################
 # Main
@@ -33,7 +33,7 @@ class UserService:
             
             # Cria o token de sessão vinculado com o email e id
             # Duração de 1 dia.
-            jwt_token = jwt.encode({'email': email, "id": user.id, 'exp': datetime.utcnow() + timedelta(days=1)}, 'secret', algorithm='HS256')
+            jwt_token = pyjwt.encode({'email': email, "id": user.id, 'exp': datetime.utcnow() + timedelta(days=1)}, 'secret', algorithm='HS256')
             
             return {"status": True, "token": jwt_token}
 

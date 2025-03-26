@@ -1,15 +1,15 @@
 ################################################################
-#region Imports
+# Imports
 
 from flask_sqlalchemy import SQLAlchemy
 
 ################################################################
-#region Defined
+# Defined
 
 db = SQLAlchemy()
 
 ################################################################
-#region Main
+# Main
 
 class DatabaseConnect:
     def __init__(self, app):

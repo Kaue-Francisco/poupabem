@@ -1,10 +1,10 @@
 ################################################################
-#region Imports
+# Imports
 
 from database.config_database import db
 
 ################################################################
-#region Main
+# Main
 
 class User(db.Model):
     __tablename__ = 'users'

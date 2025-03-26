@@ -1,5 +1,5 @@
 ################################################################
-#region Imports
+# Imports
 
 from flask import request, jsonify                # Registrar as rotas e métodos HTTP
 from services.user_service import UserService     # Serviço de usuário
@@ -13,7 +13,7 @@ db_conn = database_config.get_db()
 user_service = UserService(db_conn=db_conn)
 
 ################################################################
-#region Main
+# Main
 
 class UserController:
 
