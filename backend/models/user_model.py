@@ -1,6 +1,7 @@
 ################################################################
 # Imports
 
+import uuid
 from database.config_database import db
 
 ################################################################
@@ -9,8 +10,7 @@ from database.config_database import db
 class User(db.Model):
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String(255))
     email = db.Column(db.String(255))
     password = db.Column(db.String(255))
-    cpf = db.Column(db.String(11))

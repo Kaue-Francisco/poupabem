@@ -21,7 +21,7 @@ def decode_token(token: str):
 ################################################################
 # Middlewares
 
-def validate_auth(func):
+def token_authorization(func):
     """ Middleware para autenticação """
     @wraps(func)
     def wrapper(*args, **kwargs):

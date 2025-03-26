@@ -40,29 +40,17 @@ class UserService:
         return {"status": False}
 
     ################################################################
-    def register(self, name: str, email: str, password: str, cpf: str) -> dict:
+    def register(self, name: str, email: str, password: str) -> dict:
         """ Método para registro de usuário """
 
         try:
-            user = User(name=name, email=email, password=password, cpf=cpf)
+            user = User(name=name, email=email, password=password)
             self.db_conn.session.add(user)
             self.db_conn.session.commit()
         except Exception as e:
             return {'error': str(e)}
 
         return {'message': 'Usuário cadastrado com sucesso!'}
-    
-    ################################################################
-    def exists_cpf(self, cpf: str) -> bool:
-        """ Método para verificar se o CPF já existe """
-
-        # Busca o usuário pelo CPF
-        user = self.db_conn.session.query(User).filter_by(cpf=cpf).first()
-
-        if user:
-            return True
-        
-        return False
     
     ################################################################
     def find_by_email(self, email: str) -> User:
@@ -74,4 +62,4 @@ class UserService:
         if user:
             return {"status": True, "user": user}
 
-        return False
+        return {"status": False}
