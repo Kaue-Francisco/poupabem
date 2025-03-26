@@ -3,6 +3,11 @@
 
 from models.user_model import User
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime, timedelta
+import bcrypt
+
+# Bilbioteca para criar token de sessão
+import jwt
 
 ################################################################
 #region Main
@@ -13,10 +18,28 @@ class UserService:
         self.db_conn = db_conn
 
     ################################################################
-    def login(self, data: dict) -> dict:
+    def login(self, email: str, password: str) -> bool:
         """ Método para login de usuário """
 
-        return data
+        # Busca o usuário pelo email
+        user = self.find_by_email(email)
+
+        # Retorna False se o usuário não for encontrado
+        if user["status"] == False:
+            return {"status": False}
+
+        user = user["user"]
+
+        # Verifica se a senha fornecida corresponde à senha armazenada
+        if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+            
+            # Cria o token de sessão vinculado com o email e id
+            # Duração de 1 dia.
+            jwt_token = jwt.encode({'email': email, "id": user.id, 'exp': datetime.utcnow() + timedelta(days=1)}, 'secret', algorithm='HS256')
+            
+            return {"status": True, "token": jwt_token}
+
+        return {"status": False}
 
     ################################################################
     def register(self, name: str, email: str, password: str, cpf: str) -> dict:
@@ -32,10 +55,11 @@ class UserService:
         return {'message': 'Usuário cadastrado com sucesso!'}
     
     ################################################################
-    def exists_email(self, email: str) -> bool:
-        """ Método para verificar se o email já existe """
+    def exists_cpf(self, cpf: str) -> bool:
+        """ Método para verificar se o CPF já existe """
 
-        user = self.db_conn.session.query(User).filter_by(email=email).first()
+        # Busca o usuário pelo CPF
+        user = self.db_conn.session.query(User).filter_by(cpf=cpf).first()
 
         if user:
             return True
@@ -43,12 +67,13 @@ class UserService:
         return False
     
     ################################################################
-    def exists_cpf(self, cpf: str) -> bool:
-        """ Método para verificar se o CPF já existe """
+    def find_by_email(self, email: str) -> User:
+        """ Método para buscar usuário pelo email """
 
-        user = self.db_conn.session.query(User).filter_by(cpf=cpf).first()
+        # Busca o usuário pelo email
+        user = self.db_conn.session.query(User).filter_by(email=email).first()
 
         if user:
-            return True
-        
+            return {"status": True, "user": user}
+
         return False

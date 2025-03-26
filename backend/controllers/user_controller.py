@@ -4,6 +4,7 @@
 from flask import request, jsonify
 from services.user_service import UserService
 from database_instance import database_config
+import bcrypt
 
 ################################################################
 # Defined
@@ -18,7 +19,17 @@ class UserController:
     def login(self, data: dict) -> jsonify:
         """ Método para login de usuário """
 
-        return data
+        email, password = data['email'], data['password']
+
+        if user_service.find_by_email(email)["status"] == False:
+            return jsonify({'message': 'O e-mail ou a senha estão incorretos!'}), 400
+
+        response = user_service.login(email=email, password=password)
+
+        if response["status"] == False:
+            return jsonify({'message': 'O e-mail ou a senha estão incorretos!'}), 400
+        
+        return response, 200
     
     ################################################################
     def register(self, data: dict) -> jsonify:
@@ -26,26 +37,20 @@ class UserController:
 
         name, email, password, cpf = data['name'], data['email'], data['password'], data['cpf']
         
-        if self.exists_email(email) == True:
+        if user_service.find_by_email(email)["status"] == True:
             return jsonify({'message': 'Este e-mail já está em uso!'}), 400
 
-        if self.exists_cpf(cpf) == True:
+        if user_service.exists_cpf(cpf) == True:
             return jsonify({'message': 'Este CPF já está em uso!'}), 400
         
         if self.validate_cpf(cpf) == False:
             return jsonify({'message': 'CPF inválido!'}), 400
+        
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-        response = user_service.register(name=name, email=email, password=password, cpf=cpf)
+        response = user_service.register(name=name, email=email, password=password_hash, cpf=cpf)
 
         return jsonify(response), 201
-    
-    ################################################################
-    def exists_email(self, email: str) -> bool:
-        """ Método para verificar se o email já existe """
-
-        response = user_service.exists_email(email)
-
-        return response
     
     ################################################################
     def validate_cpf(self, cpf: str) -> bool:
@@ -79,13 +84,5 @@ class UserController:
             return False
 
         return True
-    
-    ################################################################
-    def exists_cpf(self, cpf) -> bool:
-        """ Método para verificar se o CPF já existe """
-
-        response = user_service.exists_cpf(cpf)
-
-        return response
 
 ################################################################

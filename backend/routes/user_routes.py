@@ -20,7 +20,9 @@ def login() -> jsonify:
 
     data = request.get_json()
 
-    return data
+    response = user_controller.login(data)
+
+    return response
 
 ################################################################
 @user_routes.route('/register', methods=['POST'])
