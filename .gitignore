@@ -1,0 +1,6 @@
+# Ambientes virtuais
+*/venv
+*/env
+
+# Pycache
+*/__pycache__
