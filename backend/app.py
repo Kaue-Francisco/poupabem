@@ -1,25 +1,18 @@
 ################################################################
 # Imports
 
-from flask import Flask
+from database_instance import app
 from routes.user_routes import user_routes
 
 ################################################################
 # Main
 
-def create_app() -> Flask:
-    """ Método para criar a aplicação Flask """
-    app = Flask(__name__)
-
-    # Registrando as rotas
-    app.register_blueprint(user_routes)
-
-    return app
+# Registrando as rotas
+app.register_blueprint(user_routes)
 
 ################################################################
 
 if __name__ == '__main__':
-    app = create_app()
     app.run(debug=True)
 
 ################################################################
