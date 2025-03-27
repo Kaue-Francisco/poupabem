@@ -2,7 +2,7 @@ CREATE TABLE "users"(
     "id" UUID NOT NULL,
     "nome" VARCHAR(255) NOT NULL,
     "email" VARCHAR(150) NOT NULL,
-    "senha" BIGINT NOT NULL,
+    "senha" VARCHAR(255) NOT NULL,
     "criado_em" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
 ALTER TABLE

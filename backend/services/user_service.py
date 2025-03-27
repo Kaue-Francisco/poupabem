@@ -29,11 +29,11 @@ class UserService:
         user = user["user"]
 
         # Verifica se a senha fornecida corresponde à senha armazenada
-        if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+        if bcrypt.checkpw(password.encode('utf-8'), user.senha.encode('utf-8')):
             
             # Cria o token de sessão vinculado com o email e id
             # Duração de 1 dia.
-            jwt_token = pyjwt.encode({'email': email, "id": user.id, 'exp': datetime.utcnow() + timedelta(days=1)}, 'secret', algorithm='HS256')
+            jwt_token = pyjwt.encode({'email': email, "id": str(user.id), 'exp': datetime.utcnow() + timedelta(days=1)}, 'secret', algorithm='HS256')
             
             return {"status": True, "token": jwt_token}
 
@@ -44,7 +44,8 @@ class UserService:
         """ Método para registro de usuário """
 
         try:
-            user = User(name=name, email=email, password=password)
+            print(name, email, password)
+            user = User(nome=name, email=email, senha=password)
             self.db_conn.session.add(user)
             self.db_conn.session.commit()
         except Exception as e:

@@ -18,3 +18,6 @@ class Receita(db.Model):
     data = db.Column(db.Date, nullable=False)
     descricao = db.Column(db.Text, nullable=False)
     criado_em = db.Column(db.Date, nullable=False, default=date.today)
+
+    usuario = db.relationship('User', backref='receitas', foreign_keys=[usuario_id])
+    categoria = db.relationship('Categoria', backref='receitas', foreign_keys=[categoria_id])

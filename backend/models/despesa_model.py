@@ -18,3 +18,6 @@ class Despesa(db.Model):
     data = db.Column(db.Date, nullable=False)
     descricao = db.Column(db.Text, nullable=False)
     criado_em = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    usuario = db.relationship('User', backref='despesas', foreign_keys=[usuario_id])
+    categoria = db.relationship('Categoria', backref='despesas', foreign_keys=[categoria_id])
