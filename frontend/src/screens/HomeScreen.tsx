@@ -1,9 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, BackHandler } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
+  const handleExitApp = () => {
+    BackHandler.exitApp(); // Fecha o aplicativo
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bem-vindo ao PoupaBem</Text>
@@ -11,7 +15,7 @@ export default function HomeScreen() {
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Acessar</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.exitButton}>
+      <TouchableOpacity style={styles.exitButton} onPress={handleExitApp}>
         <Text style={styles.exitText}>Sair</Text>
       </TouchableOpacity>
     </View>
