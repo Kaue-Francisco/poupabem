@@ -8,11 +8,15 @@ from datetime import datetime
 ################################################################
 # Main
 
-class User(db.Model):
-    __tablename__ = 'users'
+class Categoria(db.Model):
+    __tablename__ = 'categoria'
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    usuario_id = db.Column(db.String(36), nullable=False)
     nome = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(150), nullable=False, unique=True)
-    senha = db.Column(db.BigInteger, nullable=False)
+    tipo = db.Column(db.String(255), nullable=False)
     criado_em = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.CheckConstraint("tipo IN ('receita', 'despesa')", name='check_tipo_valores'),
+    )
