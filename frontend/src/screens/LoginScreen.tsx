@@ -35,11 +35,9 @@ export default function LoginScreen() {
 
       const data = await response.json();
 
-      if (data.status) {
-        // Aqui você pode armazenar o token em um estado global ou AsyncStorage
+      if (response.status === 200) {
         console.log('Token:', data.token);
-        // Navegar para a próxima tela após o login bem-sucedido
-        // navigation.navigate('Home');
+        navigation.navigate('Home');
       } else {
         Alert.alert('Erro', 'Email ou senha inválidos');
       }
