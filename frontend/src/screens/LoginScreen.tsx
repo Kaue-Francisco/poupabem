@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { apiConfig } from '../config/api';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -17,7 +18,7 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://192.168.15.103:5000/user/login', {
+      const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.login}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
