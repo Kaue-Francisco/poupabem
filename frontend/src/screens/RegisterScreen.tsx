@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { apiConfig } from '../config/api';
-import { RootStackParamList } from '../types/navigation';
 
-type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
-
-export default function LoginScreen() {
+export default function RegisterScreen() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigation = useNavigation<LoginScreenNavigationProp>();
+  const navigation = useNavigation();
 
-  const handleLogin = async () => {
-    if (!email || !senha) {
+  const handleRegister = async () => {
+    if (!name || !email || !password) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos');
       return;
     }
@@ -22,44 +19,46 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.login}`, {
+      const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.register}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: email,
-          password: senha,
+          name,
+          email,
+          password,
         }),
       });
 
       const data = await response.json();
 
       if (data.status) {
-        // Aqui você pode armazenar o token em um estado global ou AsyncStorage
-        console.log('Token:', data.token);
-        // Navegar para a próxima tela após o login bem-sucedido
-        // navigation.navigate('Home');
+        Alert.alert('Sucesso', 'Conta criada com sucesso!');
+        navigation.goBack();
       } else {
-        Alert.alert('Erro', 'Email ou senha inválidos');
+        Alert.alert('Erro', data.message || 'Erro ao criar conta');
       }
     } catch (error) {
-      console.log('entrei aki')
       Alert.alert('Erro', 'Não foi possível conectar ao servidor');
-      console.error('Erro no login:', error);
+      console.error('Erro no registro:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleForgotPassword = () => {
-    Alert.alert('Info', 'Funcionalidade em desenvolvimento');
-  };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <Text style={styles.title}>Criar Conta</Text>
       
+      <TextInput
+        style={styles.input}
+        placeholder="Nome"
+        value={name}
+        onChangeText={setName}
+        autoCapitalize="words"
+      />
+
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -72,33 +71,19 @@ export default function LoginScreen() {
       <TextInput
         style={styles.input}
         placeholder="Senha"
-        value={senha}
-        onChangeText={setSenha}
+        value={password}
+        onChangeText={setPassword}
         secureTextEntry
       />
       
       <TouchableOpacity 
         style={[styles.button, loading && styles.buttonDisabled]} 
-        onPress={handleLogin}
+        onPress={handleRegister}
         disabled={loading}
       >
         <Text style={styles.buttonText}>
-          {loading ? 'Entrando...' : 'Entrar'}
+          {loading ? 'Criando conta...' : 'Criar Conta'}
         </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.forgotPasswordButton}
-        onPress={handleForgotPassword}
-      >
-        <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.registerButton}
-        onPress={() => navigation.navigate('Register')}
-      >
-        <Text style={styles.registerText}>Não tem uma conta? Criar conta</Text>
       </TouchableOpacity>
     </View>
   );
@@ -141,21 +126,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  forgotPasswordButton: {
-    marginTop: 15,
-    alignItems: 'center',
-  },
-  forgotPasswordText: {
-    color: '#007AFF',
-    fontSize: 14,
-  },
-  registerButton: {
-    marginTop: 15,
-    alignItems: 'center',
-  },
-  registerText: {
-    color: '#007AFF',
-    fontSize: 14,
   },
 }); 

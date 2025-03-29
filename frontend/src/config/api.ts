@@ -15,6 +15,7 @@ export const apiConfig = {
   baseUrl: getApiUrl(),
   endpoints: {
     login: '/user/login',
+    register: '/user/register',
     // Adicione outros endpoints aqui
   },
 };
