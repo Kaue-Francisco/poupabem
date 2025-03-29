@@ -16,12 +16,6 @@ export default function HomeScreen() {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>PoupaBem</Text>
-        <Text style={styles.headerSubtitle}>Gestão Financeira Pessoal</Text>
-      </View>
-
-      <View style={styles.balanceContainer}>
-        <Text style={styles.balanceTitle}>Saldo Total</Text>
-        <Text style={styles.balanceValue}>R$ {saldoTotal.toFixed(2)}</Text>
       </View>
 
       <View style={styles.summaryContainer}>
@@ -74,7 +68,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#3333fd',
     padding: 20,
     paddingTop: 40,
   },
@@ -92,7 +86,6 @@ const styles = StyleSheet.create({
   },
   balanceContainer: {
     backgroundColor: '#fff',
-    margin: 15,
     padding: 20,
     borderRadius: 10,
     shadowColor: '#000',
@@ -117,13 +110,14 @@ const styles = StyleSheet.create({
   summaryContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginHorizontal: 15,
-    marginBottom: 20,
+    marginHorizontal: 10,
+    marginBottom: 5,
   },
   summaryItem: {
     flex: 1,
     backgroundColor: '#fff',
     marginHorizontal: 5,
+    margin: 15,
     padding: 15,
     borderRadius: 10,
     shadowColor: '#000',

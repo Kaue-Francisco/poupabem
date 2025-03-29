@@ -7,16 +7,30 @@ export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
+  const validatePasswords = () => {
+    if (password !== confirmPassword) {
+      Alert.alert('Erro', 'As senhas não coincidem');
+      return false;
+    }
+    return true;
+  }
+
   const handleRegister = async () => {
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !confirmPassword) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos');
       return;
     }
 
     setLoading(true);
+
+    if (!validatePasswords()) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.register}`, {
@@ -73,6 +87,14 @@ export default function RegisterScreen() {
         placeholder="Senha"
         value={password}
         onChangeText={setPassword}
+        secureTextEntry
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Confirmar Senha"
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
         secureTextEntry
       />
       

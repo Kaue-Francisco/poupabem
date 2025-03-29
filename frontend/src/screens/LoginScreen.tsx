@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { apiConfig } from '../config/api';
 import { RootStackParamList } from '../types/navigation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -36,13 +37,12 @@ export default function LoginScreen() {
       const data = await response.json();
 
       if (response.status === 200) {
-        console.log('Token:', data.token);
+        await AsyncStorage.setItem('userToken', data.token);
         navigation.navigate('Home');
       } else {
         Alert.alert('Erro', 'Email ou senha inválidos');
       }
     } catch (error) {
-      console.log('entrei aki')
       Alert.alert('Erro', 'Não foi possível conectar ao servidor');
       console.error('Erro no login:', error);
     } finally {
@@ -68,12 +68,16 @@ export default function LoginScreen() {
       />
       
       <TextInput
-        style={styles.input}
+        style={styles.inputPassword}
         placeholder="Senha"
         value={senha}
         onChangeText={setSenha}
         secureTextEntry
       />
+      
+      <TouchableOpacity onPress={handleForgotPassword}>
+        <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
+      </TouchableOpacity>
       
       <TouchableOpacity 
         style={[styles.button, loading && styles.buttonDisabled]} 
@@ -83,13 +87,6 @@ export default function LoginScreen() {
         <Text style={styles.buttonText}>
           {loading ? 'Entrando...' : 'Entrar'}
         </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.forgotPasswordButton}
-        onPress={handleForgotPassword}
-      >
-        <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
@@ -124,6 +121,15 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontSize: 16,
   },
+  inputPassword: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    marginBottom: 3,
+    fontSize: 16,
+  },
   button: {
     backgroundColor: '#007AFF',
     height: 50,
@@ -139,10 +145,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  forgotPasswordButton: {
-    marginTop: 15,
-    alignItems: 'center',
   },
   forgotPasswordText: {
     color: '#007AFF',
