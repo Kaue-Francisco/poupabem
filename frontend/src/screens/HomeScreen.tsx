@@ -1,18 +1,25 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, BackHandler } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
+  const navigation = useNavigation();
+
   const handleExitApp = () => {
     BackHandler.exitApp(); // Fecha o aplicativo
+  };
+
+  const handleLogin = () => {
+    navigation.navigate('Login');
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bem-vindo ao PoupaBem</Text>
       <Text style={styles.subtitle}>Sua aplicação de finanças pessoais</Text>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Acessar</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.exitButton} onPress={handleExitApp}>
