@@ -105,13 +105,11 @@ export class ExpenseService {
 
   static async deleteExpense(expenseId: string): Promise<void> {
     const token = await this.getToken();
-    const userId = await this.getUserId();
-
-    const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.deletarDespesa(userId, expenseId)}`, {
+    const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.deletarDespesa(expenseId)}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`,
       },
     });
 

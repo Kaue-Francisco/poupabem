@@ -103,11 +103,11 @@ export class IncomeService {
     const token = await this.getToken();
     const userId = await this.getUserId();
 
-    const response = await fetch(`${apiConfig.baseUrl}/receita/${userId}/${incomeId}`, {
+    const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.deletarReceita(incomeId)}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`,
       },
     });
 
