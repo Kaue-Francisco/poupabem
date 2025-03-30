@@ -13,8 +13,8 @@ from models.categoria_model import Categoria
 class Despesa(db.Model):
     __tablename__ = 'despesa'
 
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    usuario_id = db.Column(db.String(36), db.ForeignKey(User.id), nullable=False)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
     categoria_id = db.Column(db.String(36), db.ForeignKey(Categoria.id), nullable=False)
     valor = db.Column(db.Numeric(8, 2), nullable=False)
     data = db.Column(db.Date, nullable=False)
