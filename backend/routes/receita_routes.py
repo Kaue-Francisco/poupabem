@@ -44,3 +44,12 @@ def delete_receita(receita_id: str) -> jsonify:
     response = receita_controller.delete_receita(receita_id)
 
     return response
+
+@receita_routes.route('/total/<usuario_id>', methods=['GET'])
+@token_authorization
+def get_total_receitas(usuario_id: int) -> jsonify:
+    """ Método para buscar o total de receitas de um usuário """
+
+    response = receita_controller.total_receitas(usuario_id)
+
+    return response

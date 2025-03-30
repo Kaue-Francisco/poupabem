@@ -67,6 +67,16 @@ class ReceitaService:
 
         return {'message': 'Receita deletada com sucesso!'}
 
+    def total_receitas(self, usuario_id: str) -> dict:
+        """ Método para calcular o total de receitas de um usuário """
+        try:
+            # Busca todas as receitas associadas ao usuário
+            receitas = self.db_conn.session.query(Receita).filter_by(usuario_id=usuario_id).all()
+            total = sum(receita.valor for receita in receitas)
+            return {'status': True, 'total': total}
+        except Exception as e:
+            return {'error': str(e)}
+
     ################################################################
     def serialize_receita(self, receita: Receita) -> dict:
         """ Método para serializar uma receita """

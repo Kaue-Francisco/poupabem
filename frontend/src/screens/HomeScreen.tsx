@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
+import { apiConfig } from '../config/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { jwtDecode } from 'jwt-decode';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -11,18 +14,72 @@ export default function HomeScreen() {
   const [saldoTotal, setSaldoTotal] = useState(0);
   const [receitas, setReceitas] = useState(0);
   const [despesas, setDespesas] = useState(0);
+  const [showReceitasTooltip, setShowReceitasTooltip] = useState(false);
+  const [showDespesasTooltip, setShowDespesasTooltip] = useState(false);
 
   const handleCategorias = () => {
     navigation.navigate('Categories');
-  }
+  };
 
   const handleDespesas = () => {
     navigation.navigate('Expenses');
-  }
+  };
 
   const handleReceitas = () => {
     navigation.navigate('Income');
-  }
+  };
+
+  const fetchReceitas = async (token: string, userId: number) => {
+    try {
+      const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.totalReceita(userId)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      console.log(data);
+      if (data.status) {
+        setReceitas(data.total);
+      } else {
+        console.error('Erro ao buscar receitas: Dados inválidos');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar receitas:', error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (!token) {
+          console.error('Token not found');
+          return;
+        }
+        const decodedToken: any = jwtDecode(token);
+        const userId = decodedToken.id;
+        await fetchReceitas(token, userId);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    const unsubscribe = navigation.addListener('focus', fetchData);
+
+    return unsubscribe;
+  }, [navigation]);
+
+  const handleShowReceitasTooltip = () => {
+    setShowReceitasTooltip(true);
+    setTimeout(() => setShowReceitasTooltip(false), 2000); // Oculta o balão após 2 segundos
+  };
+
+  const handleShowDespesasTooltip = () => {
+    setShowDespesasTooltip(true);
+    setTimeout(() => setShowDespesasTooltip(false), 2000); // Oculta o balão após 2 segundos
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -33,39 +90,52 @@ export default function HomeScreen() {
       <View style={styles.summaryContainer}>
         <View style={styles.summaryItem}>
           <Text style={styles.summaryLabel}>Receitas</Text>
-          <Text style={[styles.summaryValue, styles.incomeValue]}>
-            R$ {receitas.toFixed(2)}
-          </Text>
+          <TouchableOpacity onPress={handleShowReceitasTooltip}>
+            <Text
+              style={[styles.summaryValue, styles.incomeValue]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              R$ {receitas}
+            </Text>
+          </TouchableOpacity>
+          {showReceitasTooltip && (
+            <View style={styles.tooltip}>
+              <Text style={styles.tooltipText}>R$ {receitas}</Text>
+            </View>
+          )}
         </View>
         <View style={styles.summaryItem}>
           <Text style={styles.summaryLabel}>Despesas</Text>
-          <Text style={[styles.summaryValue, styles.expenseValue]}>
-            R$ {despesas.toFixed(2)}
-          </Text>
+          <TouchableOpacity onPress={handleShowDespesasTooltip}>
+            <Text
+              style={[styles.summaryValue, styles.expenseValue]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              R$ {despesas.toFixed(2)}
+            </Text>
+          </TouchableOpacity>
+          {showDespesasTooltip && (
+            <View style={styles.tooltip}>
+              <Text style={styles.tooltipText}>R$ {despesas.toFixed(2)}</Text>
+            </View>
+          )}
         </View>
       </View>
 
       <View style={styles.menuContainer}>
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={handleCategorias}
-        >
+        <TouchableOpacity style={styles.menuItem} onPress={handleCategorias}>
           <Text style={styles.menuItemTitle}>Categorias</Text>
           <Text style={styles.menuItemDescription}>Gerencie suas categorias</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={handleDespesas}
-        >
+        <TouchableOpacity style={styles.menuItem} onPress={handleDespesas}>
           <Text style={styles.menuItemTitle}>Despesas</Text>
           <Text style={styles.menuItemDescription}>Registre suas despesas</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={handleReceitas}
-        >
+        <TouchableOpacity style={styles.menuItem} onPress={handleReceitas}>
           <Text style={styles.menuItemTitle}>Receitas</Text>
           <Text style={styles.menuItemDescription}>Registre suas receitas</Text>
         </TouchableOpacity>
@@ -89,35 +159,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: '#fff',
-    textAlign: 'center',
-    marginTop: 5,
-  },
-  balanceContainer: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  balanceTitle: {
-    fontSize: 16,
-    color: '#666',
-  },
-  balanceValue: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#007AFF',
-    marginTop: 5,
   },
   summaryContainer: {
     flexDirection: 'row',
@@ -155,6 +196,19 @@ const styles = StyleSheet.create({
   },
   expenseValue: {
     color: '#FF3B30',
+  },
+  tooltip: {
+    position: 'absolute',
+    top: -30,
+    left: 10,
+    backgroundColor: '#333',
+    padding: 5,
+    borderRadius: 5,
+    zIndex: 1,
+  },
+  tooltipText: {
+    color: '#fff',
+    fontSize: 12,
   },
   menuContainer: {
     padding: 15,

@@ -73,3 +73,15 @@ class ReceitaController:
             return jsonify({'message': response['message']}), 404
 
         return jsonify(response), 200
+    
+    def total_receitas(self, usuario_id: str) -> jsonify:
+        """ Método para calcular o total de receitas de um usuário """
+        
+        # Chama o método para calcular o total
+        response = receita_service.total_receitas(usuario_id=usuario_id)
+
+        # Retorna a resposta
+        if 'error' in response:
+            return jsonify({'message': response['error']}), 400
+
+        return jsonify(response), 200

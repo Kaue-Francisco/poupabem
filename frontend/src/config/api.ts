@@ -18,5 +18,6 @@ export const apiConfig = {
     register: '/user/register',
     criarCategoria: '/categoria/create',
     listarCategorias: '/categoria/listar',
+    totalReceita: (id: number) => `/receita/total/${id}`,
   },
 };
