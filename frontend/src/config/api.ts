@@ -20,5 +20,6 @@ export const apiConfig = {
     listarCategorias: '/categoria/listar',
     totalReceita: (id: number) => `/receita/total/${id}`,
     totalDespesa: (id: number) => `/despesa/total/${id}`,
+    totalPorCategoria: (id: number) => `/categoria/total/${id}`,
   },
 };

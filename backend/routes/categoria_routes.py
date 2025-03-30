@@ -54,4 +54,14 @@ def delete_categoria(categoria_id: str) -> jsonify:
 
     return response
 
+
+@categoria_routes.route('/total/<categoria_id>', methods=['GET'])
+@token_authorization
+def total_by_categoria(categoria_id: str) -> jsonify:
+    """ Método para buscar o total de uma categoria """
+
+    response = categoria_controller.total_by_categoria(categoria_id)
+
+    return response
+
 ################################################################

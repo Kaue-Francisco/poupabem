@@ -2,6 +2,8 @@
 # Imports
 
 from models.categoria_model import Categoria  # Importa o modelo de categoria
+from models.despesa_model import Despesa          # Importa o modelo de despesa
+from models.receita_model import Receita          # Importa o modelo de receita
 from flask_sqlalchemy import SQLAlchemy       # Importa o SQLAlchemy para conexão com o banco de dados
 
 ################################################################
@@ -63,6 +65,25 @@ class CategoriaService:
             return {'error': str(e)}
 
         return {'message': 'Categoria deletada com sucesso!'}
+    
+    def total_by_categoria(self, categoria_id: str) -> dict:
+        """ Método para buscar o total de categorias por usuário """
+        try:
+            # Busca o total de categorias associadas ao usuário
+            categoria = self.db_conn.session.query(Categoria).filter_by(id=categoria_id).first()
+            if not categoria:
+                return {'status': False, 'message': 'Categoria não encontrada'}
+            
+            if categoria.tipo == 'receita':
+                receitas = self.db_conn.session.query(Receita).filter_by(categoria_id=categoria_id).all()
+                total = sum(receita.valor for receita in receitas)
+            else:
+                despesas = self.db_conn.session.query(Despesa).filter_by(categoria_id=categoria_id).all()
+                total = sum(despesa.valor for despesa in despesas)
+
+            return {'status': True, 'total': total}
+        except Exception as e:
+            return {'error': str(e)}
 
     ################################################################
     def serialize_categoria(self, categoria: Categoria) -> dict:

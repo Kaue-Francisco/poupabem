@@ -75,5 +75,17 @@ class CategoriaController:
             return jsonify({'message': response['message']}), 404
 
         return jsonify(response), 200
+    
+    def total_by_categoria(self, categoria_id: str) -> jsonify:
+        """ Método para buscar o total de categorias por usuário """
+
+        # Chama o método para buscar o total de categorias
+        response = categoria_service.total_by_categoria(categoria_id=categoria_id)
+
+        # Retorna a resposta
+        if 'error' in response:
+            return jsonify({'message': response['error']}), 400
+
+        return jsonify(response), 200
 
 ################################################################
