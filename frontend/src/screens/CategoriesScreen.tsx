@@ -103,9 +103,6 @@ export default function CategoriesScreen() {
       <View style={styles.categoryHeader}>
         <Text style={styles.categoryName}>{item.name}</Text>
         <View style={styles.iconContainer}>
-          <TouchableOpacity onPress={() => navigation.navigate('EditCategory', { categoryId: item.id })}>
-            <Icon name="pencil" size={20} color="#007AFF" style={styles.icon} />
-          </TouchableOpacity>
           <TouchableOpacity onPress={() => Alert.alert('Excluir', 'Função de exclusão ainda não implementada')}>
             <Icon name="trash" size={20} color="#FF6347" style={styles.icon} />
           </TouchableOpacity>
