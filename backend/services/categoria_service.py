@@ -50,7 +50,7 @@ class CategoriaService:
 
     ################################################################
     def delete_categoria(self, categoria_id: str) -> dict:
-        """ Método para deletar uma categoria """
+        """ Método para deletar uma categoria e seus registros vinculados """
 
         try:
             # Busca a categoria pelo ID
@@ -59,12 +59,19 @@ class CategoriaService:
             if not categoria:
                 return {'status': False, 'message': 'Categoria não encontrada'}
 
+            # Apaga receitas ou despesas vinculadas à categoria
+            if categoria.tipo == 'receita':
+                self.db_conn.session.query(Receita).filter_by(categoria_id=categoria_id).delete()
+            else:
+                self.db_conn.session.query(Despesa).filter_by(categoria_id=categoria_id).delete()
+
+            # Apaga a categoria
             self.db_conn.session.delete(categoria)
             self.db_conn.session.commit()
         except Exception as e:
             return {'error': str(e)}
 
-        return {'message': 'Categoria deletada com sucesso!'}
+        return {'message': 'Categoria e registros vinculados deletados com sucesso!'}
     
     def total_by_categoria(self, categoria_id: str) -> dict:
         """ Método para buscar o total de categorias por usuário """

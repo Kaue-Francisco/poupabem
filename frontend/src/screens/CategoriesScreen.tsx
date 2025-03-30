@@ -98,12 +98,49 @@ export default function CategoriesScreen() {
     return unsubscribe;
   }, [navigation]);
 
+  const handleDeleteCategory = async (categoryId: string) => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) {
+        console.error('Token não encontrado');
+        return;
+      }
+      const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.deletarCategoria(categoryId)}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      console.log(`Status da resposta: ${response.status}`);
+      
+      if (response.status === 404) {
+        Alert.alert('Erro', 'Categoria não encontrada!');
+        return;
+      }
+
+      if (response.status === 200) {
+        Alert.alert('Sucesso', 'Categoria excluída com sucesso!');
+        setCategories((prevCategories) => prevCategories.filter((cat) => cat.id !== categoryId));
+        return;
+      }
+
+      // Se chegou aqui, é um erro não tratado
+      console.error(`Erro na resposta do servidor: ${response.status} ${response.statusText}`);
+      Alert.alert('Erro', 'Erro ao excluir categoria! Verifique sua conexão ou tente novamente mais tarde.');
+    } catch (error) {
+      console.error('Erro ao excluir categoria:', error);
+      Alert.alert('Erro', 'Ocorreu um erro inesperado. Tente novamente mais tarde.');
+    }
+  };
+
   const renderItem = ({ item }: { item: Category }) => (
     <View style={[styles.categoryItem, { borderLeftColor: item.color }]}>
       <View style={styles.categoryHeader}>
         <Text style={styles.categoryName}>{item.name}</Text>
         <View style={styles.iconContainer}>
-          <TouchableOpacity onPress={() => Alert.alert('Excluir', 'Função de exclusão ainda não implementada')}>
+          <TouchableOpacity onPress={handleDeleteCategory.bind(null, item.id)}>
             <Icon name="trash" size={20} color="#FF6347" style={styles.icon} />
           </TouchableOpacity>
         </View>

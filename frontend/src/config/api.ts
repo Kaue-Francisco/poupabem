@@ -27,5 +27,7 @@ export const apiConfig = {
     criarReceita: '/receita/create',
     listarDespesas: (id: number) => `/despesa/${id}`,
     listarReceitas: (id: number) => `/receita/${id}`,
+    deletarCategoria: (id: number) => `/categoria/delete/${id}`,
+    deletarDespesa: (userId: number, expenseId: string) => `/despesa/${userId}/${expenseId}`,
   },
 };

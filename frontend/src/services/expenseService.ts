@@ -76,7 +76,7 @@ export class ExpenseService {
     });
 
     // Ordenar por data de criação (mais recentes primeiro)
-    return formattedExpenses.sort((a, b) => 
+    return formattedExpenses.sort((a: Expense, b: Expense) => 
       new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime()
     );
   }
@@ -107,7 +107,7 @@ export class ExpenseService {
     const token = await this.getToken();
     const userId = await this.getUserId();
 
-    const response = await fetch(`${apiConfig.baseUrl}/despesa/${userId}/${expenseId}`, {
+    const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.deletarDespesa(userId, expenseId)}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
