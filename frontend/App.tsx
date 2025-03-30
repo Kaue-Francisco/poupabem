@@ -25,7 +25,7 @@ export default function App() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: true,title: 'Criar Conta',headerBackTitle: 'Voltar'}} />
         <Stack.Screen name="Categories" component={CategoriesScreen} options={{ headerShown: true,title: 'Categorias',headerBackTitle: 'Voltar' }}/>
-        <Stack.Screen name="Expenses" component={ExpensesScreen} />
+        <Stack.Screen name="Expenses" component={ExpensesScreen} options={{ headerShown: true, title: 'Adicionar Despesas', headerBackTitle: 'Voltar' }}/>
         <Stack.Screen name="Income" component={IncomeScreen} />
         <Stack.Screen name="CreateCategory" component={CreateCategoryScreen} options={{ headerShown: true,title: 'Criar Categoria',headerBackTitle: 'Voltar'}} />
       </Stack.Navigator>

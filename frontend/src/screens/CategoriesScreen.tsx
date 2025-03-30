@@ -6,6 +6,7 @@ import { RootStackParamList } from '../types/navigation';
 import { apiConfig } from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { jwtDecode } from 'jwt-decode';
 
 type Category = {
   id: string;
@@ -22,9 +23,9 @@ export default function CategoriesScreen() {
   const navigation = useNavigation<CategoriesScreenNavigationProp>();
 
   // Função para buscar categorias
-  const fetchCategories = async (token: string) => {
+  const fetchCategories = async (token: string, userId: number) => {
     try {
-      const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.listarCategorias}`, {
+      const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.listarCategorias(userId)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -82,11 +83,13 @@ export default function CategoriesScreen() {
     const unsubscribe = navigation.addListener('focus', async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
+        const decodedToken = jwtDecode(token || '') as { id: string };
         if (!token) {
           console.error('Token não encontrado');
           return;
         }
-        fetchCategories(token);
+        
+        fetchCategories(token, decodedToken.id);
       } catch (error) {
         console.error('Erro ao inicializar CategoriesScreen:', error);
       }

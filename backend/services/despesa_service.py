@@ -79,6 +79,17 @@ class DespesaService:
             return {'status': True, 'total': total}
         except Exception as e:
             return {'error': str(e)}
+        
+    def get_categorias_despesas(self, usuario_id: str) -> dict:
+        """ Método para buscar categorias de despesas de um usuário """
+        
+        try:
+            # Busca todas as categorias de despesas associadas ao usuário
+            categorias = self.db_conn.session.query(Categoria).filter_by(usuario_id=usuario_id, tipo='despesa').all()
+            return {'status': True, 'categorias': [self.serialize_categoria(c) for c in categorias]}
+        except Exception as e:
+            return {'error': str(e)}
+        
 
     ################################################################
     def serialize_despesa(self, despesa: Despesa) -> dict:
@@ -91,4 +102,14 @@ class DespesaService:
             'data': despesa.data.isoformat(),
             'descricao': despesa.descricao,
             'criado_em': despesa.criado_em.isoformat()
+        }
+    
+    def serialize_categoria(self, categoria: Categoria) -> dict:
+        """ Método para serializar uma categoria """
+        return {
+            'id': categoria.id,
+            'usuario_id': categoria.usuario_id,
+            'nome': categoria.nome,
+            'tipo': categoria.tipo,
+            'criado_em': categoria.criado_em.isoformat()
         }

@@ -84,6 +84,19 @@ class CategoriaService:
             return {'status': True, 'total': total}
         except Exception as e:
             return {'error': str(e)}
+        
+    def get_categoria_type(self, tipo: str) -> dict:
+        """ Método para buscar o tipo de uma categoria """
+        try:
+            # Busca a categoria pelo ID
+            categoria = self.db_conn.session.query(Categoria).filter_by(id=categoria_id).first()
+
+            if not categoria:
+                return {'status': False, 'message': 'Categoria não encontrada'}
+
+            return {'status': True, 'tipo': categoria.tipo}
+        except Exception as e:
+            return {'error': str(e)}
 
     ################################################################
     def serialize_categoria(self, categoria: Categoria) -> dict:

@@ -87,5 +87,17 @@ class CategoriaController:
             return jsonify({'message': response['error']}), 400
 
         return jsonify(response), 200
+    
+    def get_categoria_type(self, tipo: str) -> jsonify:
+        """ Método para buscar o tipo de uma categoria """
+
+        # Chama o método para buscar o tipo da categoria
+        response = categoria_service.get_categoria_type(tipo=tipo)
+
+        # Retorna a resposta
+        if 'error' in response:
+            return jsonify({'message': response['error']}), 400
+
+        return jsonify(response), 200
 
 ################################################################

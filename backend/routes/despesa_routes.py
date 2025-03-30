@@ -54,4 +54,13 @@ def get_total_despesas(usuario_id: int) -> jsonify:
 
     return response
 
+@despesa_routes.route('/categorias/<usuario_id>', methods=['GET'])
+@token_authorization
+def get_categorias_despesas(usuario_id: str) -> jsonify:
+    """ Método para buscar categorias de despesas de um usuário """
+
+    response = despesa_controller.get_categorias_despesas(usuario_id)
+
+    return response
+
 ################################################################

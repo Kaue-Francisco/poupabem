@@ -17,9 +17,10 @@ export const apiConfig = {
     login: '/user/login',
     register: '/user/register',
     criarCategoria: '/categoria/create',
-    listarCategorias: '/categoria/listar',
+    listarCategorias: (id: number) => `/categoria/${id}`,
     totalReceita: (id: number) => `/receita/total/${id}`,
     totalDespesa: (id: number) => `/despesa/total/${id}`,
     totalPorCategoria: (id: number) => `/categoria/total/${id}`,
+    getCategoriasDespesas: (id: number) => `/despesa/categorias/${id}`,
   },
 };
