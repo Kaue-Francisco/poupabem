@@ -7,4 +7,5 @@ export type RootStackParamList = {
   Expenses: undefined;
   Income: undefined;
   Welcome: undefined;
+  CreateCategory: undefined;
 };

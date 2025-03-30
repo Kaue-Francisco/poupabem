@@ -47,6 +47,18 @@ class CategoriaController:
             return jsonify({'message': response['error']}), 400
 
         return jsonify(response), 200
+    
+    def get_all_categorias(self) -> jsonify:
+        """ Método para buscar todas as categorias """
+
+        # Chama o método para buscar as categorias
+        response = categoria_service.get_all_categorias()
+
+        # Retorna a resposta
+        if 'error' in response:
+            return jsonify({'message': response['error']}), 400
+
+        return jsonify(response), 200
 
     ################################################################
     def delete_categoria(self, categoria_id: str) -> jsonify:

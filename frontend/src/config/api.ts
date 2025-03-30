@@ -16,6 +16,7 @@ export const apiConfig = {
   endpoints: {
     login: '/user/login',
     register: '/user/register',
-    // Adicione outros endpoints aqui
+    criarCategoria: '/categoria/create',
+    listarCategorias: '/categoria/listar',
   },
 };

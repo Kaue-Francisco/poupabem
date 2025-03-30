@@ -8,6 +8,10 @@ import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import { RootStackParamList } from './src/types/navigation';
 import WelcomeScreen from './src/screens/WelcomeScreen';
+import ExpensesScreen from './src/screens/ExpensesScreen';
+import IncomeScreen from './src/screens/IncomeScreen';
+import CategoriesScreen from './src/screens/CategoriesScreen';
+import CreateCategoryScreen from './src/screens/CreateCategoryScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -20,6 +24,10 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: true,title: 'Criar Conta',headerBackTitle: 'Voltar'}} />
+        <Stack.Screen name="Categories" component={CategoriesScreen} options={{ headerShown: true,title: 'Categorias',headerBackTitle: 'Voltar' }}/>
+        <Stack.Screen name="Expenses" component={ExpensesScreen} />
+        <Stack.Screen name="Income" component={IncomeScreen} />
+        <Stack.Screen name="CreateCategory" component={CreateCategoryScreen} options={{ headerShown: true,title: 'Criar Categoria',headerBackTitle: 'Voltar'}} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

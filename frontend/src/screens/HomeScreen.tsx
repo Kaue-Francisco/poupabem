@@ -12,6 +12,18 @@ export default function HomeScreen() {
   const [receitas, setReceitas] = useState(0);
   const [despesas, setDespesas] = useState(0);
 
+  const handleCategorias = () => {
+    navigation.navigate('Categories');
+  }
+
+  const handleDespesas = () => {
+    navigation.navigate('Expenses');
+  }
+
+  const handleReceitas = () => {
+    navigation.navigate('Income');
+  }
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -36,7 +48,7 @@ export default function HomeScreen() {
       <View style={styles.menuContainer}>
         <TouchableOpacity 
           style={styles.menuItem}
-          onPress={() => navigation.navigate('Categories')}
+          onPress={handleCategorias}
         >
           <Text style={styles.menuItemTitle}>Categorias</Text>
           <Text style={styles.menuItemDescription}>Gerencie suas categorias</Text>
@@ -44,7 +56,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity 
           style={styles.menuItem}
-          onPress={() => navigation.navigate('Expenses')}
+          onPress={handleDespesas}
         >
           <Text style={styles.menuItemTitle}>Despesas</Text>
           <Text style={styles.menuItemDescription}>Registre suas despesas</Text>
@@ -52,7 +64,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity 
           style={styles.menuItem}
-          onPress={() => navigation.navigate('Income')}
+          onPress={handleReceitas}
         >
           <Text style={styles.menuItemTitle}>Receitas</Text>
           <Text style={styles.menuItemDescription}>Registre suas receitas</Text>

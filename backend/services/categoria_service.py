@@ -37,6 +37,15 @@ class CategoriaService:
         except Exception as e:
             return {'error': str(e)}
 
+    def get_all_categorias(self) -> dict:
+        """ Método para buscar todas as categorias """
+        try:
+            # Busca todas as categorias
+            categorias = self.db_conn.session.query(Categoria).all()
+            return {'status': True, 'categorias': [self.serialize_categoria(c) for c in categorias]}
+        except Exception as e:
+            return {'error': str(e)}
+
     ################################################################
     def delete_categoria(self, categoria_id: str) -> dict:
         """ Método para deletar uma categoria """

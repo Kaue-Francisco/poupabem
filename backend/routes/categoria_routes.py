@@ -35,6 +35,15 @@ def get_categorias_by_usuario(usuario_id: str) -> jsonify:
 
     return response
 
+@categoria_routes.route('/listar', methods=['GET'])
+@token_authorization
+def get_all_categorias() -> jsonify:
+    """ Método para buscar todas as categorias """
+
+    response = categoria_controller.get_all_categorias()
+
+    return response
+
 ################################################################
 @categoria_routes.route('/delete/<categoria_id>', methods=['DELETE'])
 @token_authorization
