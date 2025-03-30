@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, Alert, Text } from 'react-native';
+import { View, StyleSheet, FlatList, Alert, Text, TouchableOpacity } from 'react-native';
 import { IncomeForm } from '../components/IncomeForm';
 import { IncomeItem } from '../components/IncomeItem';
 import { IncomeService } from '../services/incomeService';
@@ -58,6 +58,33 @@ export default function IncomeScreen() {
     }
   };
 
+  const handleDeleteIncome = async (incomeId: string) => {
+    Alert.alert(
+      'Confirmar exclusão',
+      'Tem certeza que deseja excluir esta receita?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await IncomeService.deleteIncome(incomeId);
+              await fetchData();
+              Alert.alert('Sucesso', 'Receita excluída com sucesso');
+            } catch (error) {
+              console.error('Erro ao excluir receita:', error);
+              Alert.alert('Erro', error instanceof Error ? error.message : 'Ocorreu um erro ao excluir a receita');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <IncomeForm
@@ -74,10 +101,11 @@ export default function IncomeScreen() {
 
       <FlatList
         data={incomes}
-        renderItem={({ item }) => {
-          console.log('Renderizando item:', item);
-          return <IncomeItem income={item} />;
-        }}
+        renderItem={({ item }) => (
+          <TouchableOpacity onLongPress={() => handleDeleteIncome(item.id)}>
+            <IncomeItem income={item} />
+          </TouchableOpacity>
+        )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={() => (

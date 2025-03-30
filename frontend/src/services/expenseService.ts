@@ -102,4 +102,22 @@ export class ExpenseService {
       throw new Error(data.message || 'Não foi possível adicionar a despesa');
     }
   }
+
+  static async deleteExpense(expenseId: string): Promise<void> {
+    const token = await this.getToken();
+    const userId = await this.getUserId();
+
+    const response = await fetch(`${apiConfig.baseUrl}/despesa/${userId}/${expenseId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || 'Não foi possível deletar a despesa');
+    }
+  }
 } 

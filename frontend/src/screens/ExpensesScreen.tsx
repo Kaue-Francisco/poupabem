@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, Alert, Text } from 'react-native';
+import { View, StyleSheet, FlatList, Alert, Text, TouchableOpacity } from 'react-native';
 import { ExpenseForm } from '../components/ExpenseForm';
 import { ExpenseItem } from '../components/ExpenseItem';
 import { ExpenseService } from '../services/expenseService';
@@ -61,6 +61,33 @@ export default function ExpensesScreen() {
     }
   };
 
+  const handleDeleteExpense = async (expenseId: string) => {
+    Alert.alert(
+      'Confirmar exclusão',
+      'Tem certeza que deseja excluir esta despesa?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await ExpenseService.deleteExpense(expenseId);
+              await fetchData();
+              Alert.alert('Sucesso', 'Despesa excluída com sucesso');
+            } catch (error) {
+              console.error('Erro ao excluir despesa:', error);
+              Alert.alert('Erro', error instanceof Error ? error.message : 'Ocorreu um erro ao excluir a despesa');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <ExpenseForm
@@ -77,10 +104,11 @@ export default function ExpensesScreen() {
 
       <FlatList
         data={expenses}
-        renderItem={({ item }) => {
-          console.log('Renderizando item:', item);
-          return <ExpenseItem expense={item} />;
-        }}
+        renderItem={({ item }) => (
+          <TouchableOpacity onLongPress={() => handleDeleteExpense(item.id)}>
+            <ExpenseItem expense={item} />
+          </TouchableOpacity>
+        )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={() => (
