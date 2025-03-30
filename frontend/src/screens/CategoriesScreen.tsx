@@ -113,8 +113,6 @@ export default function CategoriesScreen() {
         },
       });
       
-      console.log(`Status da resposta: ${response.status}`);
-      
       if (response.status === 404) {
         Alert.alert('Erro', 'Categoria não encontrada!');
         return;

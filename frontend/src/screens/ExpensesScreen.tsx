@@ -18,7 +18,6 @@ export default function ExpensesScreen() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      console.log('Iniciando busca de dados...');
       const [categoriesData, expensesData] = await Promise.all([
         ExpenseService.getCategories(),
         ExpenseService.getExpenses(),
@@ -44,7 +43,6 @@ export default function ExpensesScreen() {
     }
 
     try {
-      console.log('Tentando criar despesa com dados:', formData);
       await ExpenseService.createExpense({
         categoria_id: parseInt(formData.category),
         valor: parseFloat(formData.amount),

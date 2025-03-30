@@ -18,9 +18,7 @@ export default function IncomeScreen() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      console.log('Iniciando busca de dados...');
       const incomesData = await IncomeService.getIncomes();
-      console.log('Receitas recebidas:', incomesData);
       setIncomes(incomesData);
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
@@ -41,7 +39,6 @@ export default function IncomeScreen() {
     }
 
     try {
-      console.log('Tentando criar receita com dados:', formData);
       await IncomeService.createIncome({
         categoria_id: parseInt(formData.category),
         valor: parseFloat(formData.amount),
