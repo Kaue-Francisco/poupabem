@@ -3,14 +3,15 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, A
 import { Picker } from '@react-native-picker/picker';
 import { apiConfig } from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { jwtDecode } from 'jwt-decode'; // Fix import
+import { jwtDecode } from 'jwt-decode';
 
 type Expense = {
   id: string;
   description: string;
   amount: number;
   date: string;
-  category: string;
+  category: string; // Agora a categoria armazena o nome da categoria, não apenas o ID
+  criado_em: string;
 };
 
 type Categoria = {
@@ -18,7 +19,6 @@ type Categoria = {
   nome: string;
 };
 
-// Define a custom type for the decoded token
 type DecodedToken = {
   id: string;
   exp: number;
@@ -34,9 +34,8 @@ export default function ExpensesScreen() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       setLoading(true);
-
       try {
         const token = await AsyncStorage.getItem('userToken');
         if (!token) {
@@ -44,67 +43,180 @@ export default function ExpensesScreen() {
           return;
         }
 
-        const decodedToken: DecodedToken = jwtDecode(token);
-        const userId = parseInt(decodedToken?.id, 10); // Convert userId to a number
-        
-        if (isNaN(userId)) { // Check if the conversion was successful
+        let decodedToken: DecodedToken;
+        try {
+          decodedToken = jwtDecode(token) as DecodedToken;
+        } catch (error) {
+          Alert.alert('Erro', 'Token inválido ou expirado');
+          return;
+        }
+
+        if (!decodedToken || !decodedToken.id) {
+          Alert.alert('Erro', 'Token não contém informações válidas');
+          return;
+        }
+
+        const userId = parseInt(decodedToken.id, 10);
+        if (isNaN(userId)) {
           Alert.alert('Erro', 'ID do usuário inválido no token');
           return;
         }
-        
-        const response = await fetch(
-          `${apiConfig.baseUrl}${apiConfig.endpoints.getCategoriasDespesas(userId)}`, // Pass userId as a number
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
 
-        const data = await response.json();
+        // Buscar categorias
+        const categoriesResponse = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.getCategoriasDespesas(userId)}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        });
 
-        if (data.status) {
-          setCategories(data.categorias);
+        const categoriesData = await categoriesResponse.json();
+        if (categoriesData.status) {
+          setCategories(categoriesData.categorias);
         } else {
           Alert.alert('Erro', 'Não foi possível carregar as categorias');
         }
+
+        // Buscar despesas
+        const expensesResponse = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.listarDespesas(userId)}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        });
+
+        const expensesData = await expensesResponse.json();
+        if (expensesData.status) {
+          const formattedExpenses = expensesData.despesas
+          .map((expense: any) => {
+            const categoriaEncontrada = categoriesData.categorias.find((cat: Categoria) => cat.id === expense.categoria_id);
+            return {
+              id: expense.id.toString(),
+              description: expense.descricao,
+              amount: expense.valor,
+              date: expense.data,
+              category: categoriaEncontrada ? categoriaEncontrada.nome : 'Sem Categoria',
+              criado_em: expense.criado_em, // Para ordenação
+            };
+          })
+          .sort((a: Expense, b: Expense) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime()); // Ordenar por data de criação
+
+          setExpenses(formattedExpenses);
+        } else {
+          Alert.alert('Erro', 'Não foi possível carregar as despesas');
+        }
       } catch (error) {
-        Alert.alert('Erro', 'Ocorreu um erro ao buscar as categorias');
+        Alert.alert('Erro', 'Ocorreu um erro ao buscar os dados');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCategories();
+    fetchData();
   }, []);
 
-  const handleAddExpense = () => {
-    if (!description.trim() || !amount.trim() || !category.trim()) {
+  const handleAddExpense = async () => {
+    if (!description.trim() || !amount.trim() || !category) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos');
       return;
     }
 
-    const expense: Expense = {
-      id: Date.now().toString(),
-      description: description.trim(),
-      amount: parseFloat(amount),
-      date: new Date().toLocaleDateString(),
-      category: category.trim(),
-    };
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) {
+        Alert.alert('Erro', 'Token de autenticação não encontrado');
+        return;
+      }
 
-    setExpenses([...expenses, expense]);
-    setDescription('');
-    setAmount('');
-    setCategory('');
+      let decodedToken: DecodedToken;
+      try {
+        decodedToken = jwtDecode(token) as DecodedToken;
+      } catch (error) {
+        Alert.alert('Erro', 'Token inválido ou expirado');
+        return;
+      }
+
+      if (!decodedToken || !decodedToken.id) {
+        Alert.alert('Erro', 'Token não contém informações válidas');
+        return;
+      }
+
+      const userId = parseInt(decodedToken.id, 10);
+      if (isNaN(userId)) {
+        Alert.alert('Erro', 'ID do usuário inválido no token');
+        return;
+      }
+
+      console.log(userId, category, amount, description);
+      const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.criarDespesa}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          usuario_id: userId,
+          categoria_id: parseInt(category),
+          valor: parseFloat(amount),
+          data: new Date().toISOString().split('T')[0],
+          descricao: description,
+        }),
+      });
+
+      const data = await response.json();
+      console.log('Status da resposta:', response.status);
+      console.log('Resposta da API:', data);
+
+      if (response.ok) {
+        // Buscar a categoria selecionada
+        const categoriaEncontrada = categories.find((cat) => cat.id === parseInt(category));
+        if (!categoriaEncontrada) {
+          Alert.alert('Erro', 'Categoria não encontrada');
+          return;
+        }
+
+        // Buscar a lista atualizada de despesas
+        const expensesResponse = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.listarDespesas(userId)}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        });
+
+        const expensesData = await expensesResponse.json();
+        if (expensesResponse.ok) {
+          const formattedExpenses = expensesData.despesas
+            .map((expense: any) => {
+              const categoriaEncontrada = categories.find((cat: Categoria) => cat.id === expense.categoria_id);
+              return {
+                id: expense.id.toString(),
+                description: expense.descricao,
+                amount: expense.valor,
+                date: expense.data,
+                category: categoriaEncontrada ? categoriaEncontrada.nome : 'Sem Categoria',
+                criado_em: expense.criado_em,
+              };
+            })
+            .sort((a: Expense, b: Expense) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
+
+          setExpenses(formattedExpenses);
+        }
+
+        // Limpar os campos
+        setDescription('');
+        setAmount('');
+        setCategory('');
+
+        // Mostrar mensagem de sucesso
+        Alert.alert('Sucesso', 'Despesa adicionada com sucesso');
+      } else {
+        console.error('Erro na resposta:', data);
+        Alert.alert('Erro', data.message || 'Não foi possível adicionar a despesa');
+      }
+    } catch (error) {
+      Alert.alert('Erro', 'Ocorreu um erro ao adicionar a despesa');
+    }
   };
 
   const renderItem = ({ item }: { item: Expense }) => (
     <View style={styles.expenseItem}>
       <View style={styles.expenseHeader}>
         <Text style={styles.expenseDescription}>{item.description}</Text>
-        <Text style={styles.expenseAmount}>R$ {item.amount.toFixed(2)}</Text>
+        <Text style={styles.expenseAmount}>R$ {item.amount}</Text>
       </View>
       <View style={styles.expenseFooter}>
         <Text style={styles.expenseCategory}>{item.category}</Text>
@@ -133,16 +245,19 @@ export default function ExpensesScreen() {
         {loading ? (
           <ActivityIndicator size="large" color="#3498DB" />
         ) : (
+        <View style={styles.pickerContainer}>
           <Picker
             selectedValue={category}
-            onValueChange={(itemValue) => setCategory(itemValue)}
+            onValueChange={(itemValue) => setCategory(itemValue)} // Agora armazena o ID da categoria
             style={styles.picker}
+            dropdownIconColor="#3498DB"
           >
             <Picker.Item label="Selecione uma categoria" value="" />
             {categories.map((cat) => (
-              <Picker.Item key={cat.id} label={cat.nome} value={cat.nome} />
+              <Picker.Item key={cat.id} label={cat.nome} value={cat.id.toString()} /> // O valor agora é o ID da categoria
             ))}
           </Picker>
+        </View>
         )}
         <TouchableOpacity style={styles.addButton} onPress={handleAddExpense}>
           <Text style={styles.addButtonText}>Adicionar Despesa</Text>
@@ -160,105 +275,73 @@ export default function ExpensesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#E8F0F2',
-    padding: 10,
-  },
+  container: { flex: 1, backgroundColor: '#F5F7FA', padding: 15 },
   formContainer: {
     backgroundColor: '#FFFFFF',
     padding: 20,
     borderRadius: 12,
+    marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 5,
-    marginBottom: 20,
+    elevation: 4,
   },
   title: {
-    fontSize: 26,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#2C3E50',
-    marginBottom: 20,
+    marginBottom: 10,
     textAlign: 'center',
   },
   input: {
-    backgroundColor: '#F7F9FA',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 15,
-    fontSize: 16,
+    height: 45,
+    borderColor: '#BDC3C7',
     borderWidth: 1,
-    borderColor: '#D1D9E0',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    backgroundColor: '#ECF0F1',
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#BDC3C7',
+    borderRadius: 8,
+    backgroundColor: '#ECF0F1',
+    marginBottom: 10,
+    overflow: 'hidden', // Garante que o conteúdo fique dentro dos limites
   },
   picker: {
-    backgroundColor: '#F7F9FA',
-    borderRadius: 10,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: '#D1D9E0',
+    height: 45,
+    color: '#34495E', // Cor do texto selecionado
   },
   addButton: {
     backgroundColor: '#3498DB',
-    padding: 15,
-    borderRadius: 10,
+    padding: 12,
+    borderRadius: 8,
     alignItems: 'center',
-    marginTop: 10,
   },
   addButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
     fontWeight: 'bold',
+    fontSize: 16,
   },
-  listContainer: {
-    flexGrow: 1,
-    paddingBottom: 20,
-  },
+  listContainer: { flexGrow: 1, paddingBottom: 20 },
   expenseItem: {
     backgroundColor: '#FFFFFF',
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 3,
   },
-  expenseHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  expenseDescription: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#34495E',
-  },
-  expenseAmount: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#E74C3C',
-  },
-  expenseFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  expenseCategory: {
-    fontSize: 14,
-    color: '#7F8C8D',
-  },
-  expenseDate: {
-    fontSize: 14,
-    color: '#7F8C8D',
-  },
+  expenseHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 },
+  expenseDescription: { fontSize: 16, fontWeight: 'bold', color: '#34495E' },
+  expenseAmount: { fontSize: 16, fontWeight: 'bold', color: '#E74C3C' },
+  expenseFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  expenseCategory: { fontSize: 14, color: '#7F8C8D' },
+  expenseDate: { fontSize: 14, color: '#7F8C8D' },
 });
