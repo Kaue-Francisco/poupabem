@@ -4,6 +4,8 @@
 import uuid
 from database.config_database import db
 from datetime import date
+from models.user_model import User
+from models.categoria_model import Categoria
 
 ################################################################
 # Main
@@ -11,13 +13,10 @@ from datetime import date
 class Receita(db.Model):
     __tablename__ = 'receita'
 
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    usuario_id = db.Column(db.String(36), nullable=False)
-    categoria_id = db.Column(db.String(36), nullable=False)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    categoria_id = db.Column(db.Integer, db.ForeignKey(Categoria.id), nullable=False)
     valor = db.Column(db.Numeric(8, 2), nullable=False)
     data = db.Column(db.Date, nullable=False)
     descricao = db.Column(db.Text, nullable=False)
     criado_em = db.Column(db.Date, nullable=False, default=date.today)
-
-    usuario = db.relationship('User', backref='receitas', foreign_keys=[usuario_id])
-    categoria = db.relationship('Categoria', backref='receitas', foreign_keys=[categoria_id])
