@@ -53,3 +53,12 @@ def get_total_receitas(usuario_id: int) -> jsonify:
     response = receita_controller.total_receitas(usuario_id)
 
     return response
+
+@receita_routes.route('/categorias/<usuario_id>', methods=['GET'])
+@token_authorization
+def get_categorias_receitas(usuario_id: str) -> jsonify:
+    """ Método para buscar categorias de receitas de um usuário """
+
+    response = receita_controller.get_categorias_receitas(usuario_id)
+
+    return response

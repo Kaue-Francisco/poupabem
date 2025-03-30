@@ -4,6 +4,8 @@
 from models.receita_model import Receita  # Importa o modelo de receita
 from flask_sqlalchemy import SQLAlchemy   # Importa o SQLAlchemy para conexão com o banco de dados
 from datetime import datetime             # Importa datetime para manipulação de datas
+from models.user_model import User             # Importa o modelo de usuário
+from models.categoria_model import Categoria         # Importa o modelo de categoria
 
 ################################################################
 # Main
@@ -76,8 +78,29 @@ class ReceitaService:
             return {'status': True, 'total': total}
         except Exception as e:
             return {'error': str(e)}
+        
+    def get_categorias_receitas(self, usuario_id: str) -> dict:
+        """ Método para buscar categorias de receitas de um usuário """
+        
+        try:
+            # Busca todas as receitas associadas ao usuário
+            receitas = self.db_conn.session.query(Receita).filter_by(usuario_id=usuario_id).all()
+            categorias = {receita.categoria_id for receita in receitas}
+            return {'status': True, 'categorias': [self.serialize_categoria(c) for c in categorias]}
+        except Exception as e:
+            return {'error': str(e)}
 
     ################################################################
+    def serialize_categoria(self, categoria: Categoria) -> dict:
+        """ Método para serializar uma categoria """
+        return {
+            'id': categoria.id,
+            'usuario_id': categoria.usuario_id,
+            'nome': categoria.nome,
+            'tipo': categoria.tipo,
+            'criado_em': categoria.criado_em.isoformat()
+        }
+
     def serialize_receita(self, receita: Receita) -> dict:
         """ Método para serializar uma receita """
         return {

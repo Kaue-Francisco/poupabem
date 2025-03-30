@@ -1,85 +1,90 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert } from 'react-native';
-
-type Income = {
-  id: string;
-  description: string;
-  amount: number;
-  date: string;
-  category: string;
-};
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, FlatList, Alert, Text } from 'react-native';
+import { IncomeForm } from '../components/IncomeForm';
+import { IncomeItem } from '../components/IncomeItem';
+import { IncomeService } from '../services/incomeService';
+import { Category, Income } from '../types/income';
 
 export default function IncomeScreen() {
   const [incomes, setIncomes] = useState<Income[]>([]);
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState('');
+  const [categories] = useState<Category[]>([{ id: 1, nome: 'Receita' }]); // Categoria temporária
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    description: '',
+    amount: '',
+    category: '',
+  });
 
-  const handleAddIncome = () => {
-    if (!description.trim() || !amount.trim() || !category.trim()) {
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      console.log('Iniciando busca de dados...');
+      const incomesData = await IncomeService.getIncomes();
+      console.log('Receitas recebidas:', incomesData);
+      setIncomes(incomesData);
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+      Alert.alert('Erro', error instanceof Error ? error.message : 'Ocorreu um erro ao buscar os dados');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleAddIncome = async () => {
+    if (!formData.description.trim() || !formData.amount.trim() || !formData.category) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos');
       return;
     }
 
-    const income: Income = {
-      id: Date.now().toString(),
-      description: description.trim(),
-      amount: parseFloat(amount),
-      date: new Date().toLocaleDateString(),
-      category: category.trim(),
-    };
+    try {
+      console.log('Tentando criar receita com dados:', formData);
+      await IncomeService.createIncome({
+        categoria_id: parseInt(formData.category),
+        valor: parseFloat(formData.amount),
+        data: new Date().toISOString().split('T')[0],
+        descricao: formData.description,
+      });
 
-    setIncomes([...incomes, income]);
-    setDescription('');
-    setAmount('');
-    setCategory('');
+      setFormData({ description: '', amount: '', category: '' });
+      await fetchData();
+      Alert.alert('Sucesso', 'Receita adicionada com sucesso');
+    } catch (error) {
+      console.error('Erro ao criar receita:', error);
+      Alert.alert('Erro', error instanceof Error ? error.message : 'Ocorreu um erro ao adicionar a receita');
+    }
   };
-
-  const renderItem = ({ item }: { item: Income }) => (
-    <View style={styles.incomeItem}>
-      <View style={styles.incomeHeader}>
-        <Text style={styles.incomeDescription}>{item.description}</Text>
-        <Text style={styles.incomeAmount}>R$ {item.amount.toFixed(2)}</Text>
-      </View>
-      <View style={styles.incomeFooter}>
-        <Text style={styles.incomeCategory}>{item.category}</Text>
-        <Text style={styles.incomeDate}>{item.date}</Text>
-      </View>
-    </View>
-  );
 
   return (
     <View style={styles.container}>
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Descrição"
-          value={description}
-          onChangeText={setDescription}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Valor"
-          value={amount}
-          onChangeText={setAmount}
-          keyboardType="numeric"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Categoria"
-          value={category}
-          onChangeText={setCategory}
-        />
-        <TouchableOpacity style={styles.addButton} onPress={handleAddIncome}>
-          <Text style={styles.addButtonText}>Adicionar Receita</Text>
-        </TouchableOpacity>
-      </View>
+      <IncomeForm
+        description={formData.description}
+        amount={formData.amount}
+        category={formData.category}
+        categories={categories}
+        loading={loading}
+        onDescriptionChange={(text) => setFormData({ ...formData, description: text })}
+        onAmountChange={(text) => setFormData({ ...formData, amount: text })}
+        onCategoryChange={(value) => setFormData({ ...formData, category: value })}
+        onSubmit={handleAddIncome}
+      />
 
       <FlatList
         data={incomes}
-        renderItem={renderItem}
+        renderItem={({ item }) => {
+          console.log('Renderizando item:', item);
+          return <IncomeItem income={item} />;
+        }}
         keyExtractor={(item) => item.id}
-        style={styles.list}
+        contentContainerStyle={styles.listContainer}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>Nenhuma receita encontrada</Text>
+          </View>
+        )}
       />
     </View>
   );
@@ -88,70 +93,22 @@ export default function IncomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F5F7FA',
     padding: 15,
   },
-  form: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 20,
+  listContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
-  input: {
-    backgroundColor: '#f5f5f5',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
-    fontSize: 16,
-  },
-  addButton: {
-    backgroundColor: '#34C759',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  list: {
+  emptyContainer: {
     flex: 1,
-  },
-  incomeItem: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  incomeHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 5,
+    padding: 20,
   },
-  incomeDescription: {
+  emptyText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  incomeAmount: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#34C759',
-  },
-  incomeFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  incomeCategory: {
-    fontSize: 14,
-    color: '#666',
-  },
-  incomeDate: {
-    fontSize: 14,
-    color: '#666',
+    color: '#7F8C8D',
+    textAlign: 'center',
   },
 });
