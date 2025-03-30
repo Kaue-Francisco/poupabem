@@ -73,3 +73,15 @@ class DespesaController:
             return jsonify({'message': response['message']}), 404
 
         return jsonify(response), 200
+    
+    def total_despesa(self, usuario_id: str) -> jsonify:
+        """ Método para buscar o total de despesas de um usuário """
+        
+        # Chama o método para buscar o total de despesas
+        response = despesa_service.total_despesa(usuario_id=usuario_id)
+
+        # Retorna a resposta
+        if 'error' in response:
+            return jsonify({'message': response['error']}), 400
+
+        return jsonify(response), 200

@@ -39,7 +39,6 @@ export default function HomeScreen() {
         },
       });
       const data = await response.json();
-      console.log(data);
       if (data.status) {
         setReceitas(data.total);
       } else {
@@ -47,6 +46,26 @@ export default function HomeScreen() {
       }
     } catch (error) {
       console.error('Erro ao buscar receitas:', error);
+    }
+  };
+
+  const fetchDespesas = async (token: string, userId: number) => {
+    try {
+      const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.totalDespesa(userId)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      if (data.status) {
+        setDespesas(data.total);
+      } else {
+        console.error('Erro ao buscar despesas: Dados inválidos');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar despesas:', error);
     }
   };
 
@@ -61,6 +80,7 @@ export default function HomeScreen() {
         const decodedToken: any = jwtDecode(token);
         const userId = decodedToken.id;
         await fetchReceitas(token, userId);
+        await fetchDespesas(token, userId);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -113,12 +133,12 @@ export default function HomeScreen() {
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              R$ {despesas.toFixed(2)}
+              R$ {despesas}
             </Text>
           </TouchableOpacity>
           {showDespesasTooltip && (
             <View style={styles.tooltip}>
-              <Text style={styles.tooltipText}>R$ {despesas.toFixed(2)}</Text>
+              <Text style={styles.tooltipText}>R$ {despesas}</Text>
             </View>
           )}
         </View>

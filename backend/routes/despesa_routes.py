@@ -45,4 +45,13 @@ def delete_despesa(despesa_id: str) -> jsonify:
 
     return response
 
+@despesa_routes.route('/total/<usuario_id>', methods=['GET'])
+@token_authorization
+def get_total_despesas(usuario_id: int) -> jsonify:
+    """ Método para buscar o total de despesas de um usuário """
+
+    response = despesa_controller.total_despesa(usuario_id)
+
+    return response
+
 ################################################################

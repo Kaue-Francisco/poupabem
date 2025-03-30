@@ -68,6 +68,17 @@ class DespesaService:
             return {'error': str(e)}
 
         return {'message': 'Despesa deletada com sucesso!'}
+    
+    def total_despesa(self, usuario_id: str) -> dict:
+        """ Método para buscar o total de despesas de um usuário """
+        
+        try:
+            # Busca todas as despesas associadas ao usuário
+            despesas = self.db_conn.session.query(Despesa).filter_by(usuario_id=usuario_id).all()
+            total = sum(despesa.valor for despesa in despesas)
+            return {'status': True, 'total': total}
+        except Exception as e:
+            return {'error': str(e)}
 
     ################################################################
     def serialize_despesa(self, despesa: Despesa) -> dict:
