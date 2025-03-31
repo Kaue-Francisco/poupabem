@@ -60,18 +60,23 @@ export class IncomeService {
       throw new Error('Não foi possível carregar as receitas');
     }
 
+    const categories = await this.getCategories();
+
     // Formatar as receitas
-    const formattedIncomes = data.receitas.map((income: any) => ({
-      id: income.id.toString(),
-      description: income.descricao,
-      amount: income.valor,
-      date: income.data,
-      category: 'Receita', // Temporário até implementarmos as categorias
-      criado_em: income.criado_em,
-    }));
+    const formattedIncomes = data.receitas.map((income: any) => {
+      const categoriaEncontrada = categories.find(cat => cat.id === income.categoria_id);
+      return {
+        id: income.id.toString(),
+        description: income.descricao,
+        amount: income.valor,
+        date: income.data,
+        category: categoriaEncontrada ? categoriaEncontrada.nome : 'Sem Categoria',
+        criado_em: income.criado_em,
+      };
+    });
 
     // Ordenar por data de criação (mais recentes primeiro)
-    return formattedIncomes.sort((a, b) => 
+    return formattedIncomes.sort((a: Income, b: Income) => 
       new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime()
     );
   }

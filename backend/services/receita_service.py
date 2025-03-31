@@ -84,8 +84,7 @@ class ReceitaService:
         
         try:
             # Busca todas as receitas associadas ao usuário
-            receitas = self.db_conn.session.query(Receita).filter_by(usuario_id=usuario_id).all()
-            categorias = {receita.categoria_id for receita in receitas}
+            categorias = self.db_conn.session.query(Categoria).filter_by(usuario_id=usuario_id, tipo='receita').all()
             return {'status': True, 'categorias': [self.serialize_categoria(c) for c in categorias]}
         except Exception as e:
             return {'error': str(e)}

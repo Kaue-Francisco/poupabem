@@ -7,7 +7,7 @@ import { Category, Income } from '../types/income';
 
 export default function IncomeScreen() {
   const [incomes, setIncomes] = useState<Income[]>([]);
-  const [categories] = useState<Category[]>([{ id: 1, nome: 'Receita' }]); // Categoria temporária
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     description: '',
@@ -18,8 +18,12 @@ export default function IncomeScreen() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const incomesData = await IncomeService.getIncomes();
+      const [categoriesData, incomesData] = await Promise.all([
+        IncomeService.getCategories(),
+        IncomeService.getIncomes(),
+      ]);
       setIncomes(incomesData);
+      setCategories(categoriesData);
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
       Alert.alert('Erro', error instanceof Error ? error.message : 'Ocorreu um erro ao buscar os dados');
