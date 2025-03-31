@@ -37,8 +37,29 @@ export default function ExpensesScreen() {
   }, []);
 
   const handleAddExpense = async () => {
+    
     if (!formData.description.trim() || !formData.amount.trim() || !formData.category) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos');
+      return;
+    }
+
+    // Verifica se o valor contém caracteres inválidos
+    if (formData.amount.includes('-')) {
+      Alert.alert('Erro', 'Não utilize o sinal de menos (-) no valor');
+      return;
+    }
+    else if (formData.amount.includes(' ')) {
+      Alert.alert('Erro', 'Não utilize espaços no valor');
+      return;
+    }
+
+    // Verifica se o valor é um número válido e maior que zero
+    if (isNaN(parseFloat(formData.amount))) {
+      Alert.alert('Erro', 'O valor deve ser um número válido');
+      return;
+    }
+    if (parseFloat(formData.amount) <= 0) {
+      Alert.alert('Erro', 'O valor deve ser maior que zero');
       return;
     }
 
