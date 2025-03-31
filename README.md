@@ -1,10 +1,10 @@
-# Aplicativo de Finanças Pessoais
+# 💸 Aplicativo de Finanças Pessoais 💸
 
-## Sobre o Projeto
+## 📝 Sobre o Projeto
 
 Este é um aplicativo de Finanças Pessoais desenvolvido como parte da disciplina de **Desenvolvimento Mobile** no curso de **Desenvolvimento de Software Multiplataforma** da Fatec.
 
-## Requisitos do Aplicativo
+## 📱 Requisitos do Aplicativo
 
 | **#** | **Requisito**                                                                 | **Descrição**                                                                                           |
 |-------|-------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
@@ -33,13 +33,13 @@ Este é um aplicativo de Finanças Pessoais desenvolvido como parte da disciplin
 
 Este aplicativo foi projetado para ajudar os usuários a gerenciar suas finanças de forma prática e eficiente, promovendo uma melhor organização e controle financeiro.
 
-## Backlog do Projeto
+## 📓 Backlog do Projeto
 
 O projeto será realizado em 3 sprints.
 
 | **Rank** | **Prioridade** | **User Story**                                                                                     | **Sprint** |
 |----------|----------------|----------------------------------------------------------------------------------------------------|------------|
-| 1        | Alta           | Como usuário, quero que seja possível realizar o cadastro de uma conta e fazer login com e-mail e senha. | 1          |
+| 1        | Alta           | Como usuário, quero que seja possível realizar o cadastro de uma conta e fazer login com e-mail e senha. | 1 |
 | 2        | Alta           | Como usuário quero poder criar categorias para registrar minhas despesas ou receitas | 1 |
 | 3        | Alta           | Como usuário quero poder cadastrar minhas receitas e vincular a uma categoria | 1 |
 | 4        | Alta           | Como usuário quero poder cadastrar minhas despesas e vincular a uma categoria | 1 |
@@ -49,9 +49,9 @@ O projeto será realizado em 3 sprints.
 | 8        | Alta           | Como usuário quero poder editar alguma receita ou despesa que cadastrei | 2 |
 | 9        | Alta           | Como usuário quero poder editar alguma categoria | 2 |
 | 10       | Média          | Como usuário ao selecionar a categoria quero poder visualizar todas as receitas ou despesas vinculadas a ela | 2 |
-| 11       | Alta           | Como usuário quero poder definir um orçamento mensal para cada categoria | 2 |
-| 12       | Alta           | Como usuário quero poder visualizar gráficos de gastos por categoria | 2 |
-| 13       | Alta           | Como usuário quero poder configurar alertas quando meus gastos se aproximarem do limite definido | 2 |
+| 11       | Média          | Como usuário quero poder definir um orçamento mensal para cada categoria | 2 |
+| 12       | Média          | Como usuário quero poder visualizar gráficos de gastos por categoria | 2 |
+| 13       | Média          | Como usuário quero poder configurar alertas quando meus gastos se aproximarem do limite definido | 2 |
 | 14       | Média          | Como usuário quero poder registrar a localização das minhas despesas | 2 |
 | 15       | Média          | Como usuário quero poder definir metas financeiras e acompanhar seu progresso | 2 |
 | 16       | Média          | Como usuário quero poder exportar relatórios das minhas finanças em PDF | 3 |
@@ -64,12 +64,12 @@ O projeto será realizado em 3 sprints.
 | 23       | Baixa          | Como usuário quero poder visualizar minha pontuação de crédito e sugestões de melhoria | 3 |
 
 
-## Tecnologias
+## 💻 Tecnologias
 - React Native
 - Python
 - Flask
 - PostgreSQL
 - TypeScript
 
-## Desenvolvedor
+## 👤 Desenvolvedor
 Kauê dos Santos Francisco

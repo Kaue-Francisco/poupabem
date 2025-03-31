@@ -101,10 +101,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#ECF0F1',
     marginBottom: 10,
     overflow: 'hidden',
+    paddingHorizontal: 5, // Adicionado para evitar corte no texto
   },
   picker: {
-    height: 45,
+    height: 50, // Aumentado para evitar corte
     color: '#34495E',
+    fontSize: 16, // Adicionado para melhorar a legibilidade
   },
   addButton: {
     backgroundColor: '#3498DB',
