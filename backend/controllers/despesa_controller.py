@@ -74,6 +74,7 @@ class DespesaController:
 
         return jsonify(response), 200
     
+    ################################################################
     def total_despesa(self, usuario_id: str) -> jsonify:
         """ Método para buscar o total de despesas de um usuário """
         
@@ -86,6 +87,7 @@ class DespesaController:
 
         return jsonify(response), 200
     
+    ################################################################
     def get_categorias_despesas(self, usuario_id: str) -> jsonify:
         """ Método para buscar categorias de despesas de um usuário """
         
@@ -97,3 +99,5 @@ class DespesaController:
             return jsonify({'message': response['error']}), 400
 
         return jsonify(response), 200
+
+################################################################

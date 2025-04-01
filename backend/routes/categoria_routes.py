@@ -35,6 +35,7 @@ def get_categorias_by_usuario(usuario_id: str) -> jsonify:
 
     return response
 
+################################################################
 @categoria_routes.route('/listar', methods=['GET'])
 @token_authorization
 def get_all_categorias() -> jsonify:
@@ -54,7 +55,7 @@ def delete_categoria(categoria_id: str) -> jsonify:
 
     return response
 
-
+################################################################
 @categoria_routes.route('/total/<categoria_id>', methods=['GET'])
 @token_authorization
 def total_by_categoria(categoria_id: str) -> jsonify:

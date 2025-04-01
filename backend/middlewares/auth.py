@@ -47,7 +47,7 @@ def token_authorization(func):
         return func(*args, **kwargs)
     return wrapper
 
-
+################################################################
 def validate_unauth(func):
     """ Middleware para verificar se o usuário está deslogado """
     @wraps(func)
@@ -64,3 +64,5 @@ def validate_unauth(func):
 
         return func(*args, **kwargs)
     return wrapper
+
+################################################################

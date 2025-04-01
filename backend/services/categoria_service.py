@@ -39,6 +39,7 @@ class CategoriaService:
         except Exception as e:
             return {'error': str(e)}
 
+    ################################################################
     def get_all_categorias(self) -> dict:
         """ Método para buscar todas as categorias """
         try:
@@ -73,6 +74,7 @@ class CategoriaService:
 
         return {'message': 'Categoria e registros vinculados deletados com sucesso!'}
     
+    ################################################################
     def total_by_categoria(self, categoria_id: str) -> dict:
         """ Método para buscar o total de categorias por usuário """
         try:
@@ -91,7 +93,8 @@ class CategoriaService:
             return {'status': True, 'total': total}
         except Exception as e:
             return {'error': str(e)}
-        
+    
+    ################################################################
     def get_categoria_type(self, tipo: str) -> dict:
         """ Método para buscar o tipo de uma categoria """
         try:
@@ -115,3 +118,5 @@ class CategoriaService:
             'tipo': categoria.tipo,
             'criado_em': categoria.criado_em.isoformat()
         }
+
+################################################################

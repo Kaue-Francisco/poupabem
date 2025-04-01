@@ -74,6 +74,7 @@ class ReceitaController:
 
         return jsonify(response), 200
     
+    ################################################################
     def total_receitas(self, usuario_id: str) -> jsonify:
         """ Método para calcular o total de receitas de um usuário """
         
@@ -86,6 +87,7 @@ class ReceitaController:
 
         return jsonify(response), 200
     
+    ################################################################
     def get_categorias_receitas(self, usuario_id: str) -> jsonify:
         """ Método para buscar categorias de receitas de um usuário """
         
@@ -97,3 +99,5 @@ class ReceitaController:
             return jsonify({'message': response['error']}), 400
 
         return jsonify(response), 200
+
+################################################################

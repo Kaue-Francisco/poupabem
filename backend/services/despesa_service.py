@@ -79,7 +79,8 @@ class DespesaService:
             return {'status': True, 'total': total}
         except Exception as e:
             return {'error': str(e)}
-        
+    
+    ################################################################
     def get_categorias_despesas(self, usuario_id: str) -> dict:
         """ Método para buscar categorias de despesas de um usuário """
         
@@ -104,6 +105,7 @@ class DespesaService:
             'criado_em': despesa.criado_em.isoformat()
         }
     
+    ################################################################
     def serialize_categoria(self, categoria: Categoria) -> dict:
         """ Método para serializar uma categoria """
         return {
@@ -113,3 +115,5 @@ class DespesaService:
             'tipo': categoria.tipo,
             'criado_em': categoria.criado_em.isoformat()
         }
+
+################################################################

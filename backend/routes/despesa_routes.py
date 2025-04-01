@@ -45,6 +45,7 @@ def delete_despesa(despesa_id: str) -> jsonify:
 
     return response
 
+################################################################
 @despesa_routes.route('/total/<usuario_id>', methods=['GET'])
 @token_authorization
 def get_total_despesas(usuario_id: int) -> jsonify:
@@ -54,6 +55,7 @@ def get_total_despesas(usuario_id: int) -> jsonify:
 
     return response
 
+################################################################
 @despesa_routes.route('/categorias/<usuario_id>', methods=['GET'])
 @token_authorization
 def get_categorias_despesas(usuario_id: str) -> jsonify:

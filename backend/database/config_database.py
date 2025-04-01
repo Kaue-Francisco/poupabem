@@ -29,3 +29,5 @@ class DatabaseConnect:
     def get_db(self):
         """ Retorna a instância do banco de dados """
         return db
+
+################################################################

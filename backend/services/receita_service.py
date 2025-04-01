@@ -69,6 +69,7 @@ class ReceitaService:
 
         return {'message': 'Receita deletada com sucesso!'}
 
+    ################################################################
     def total_receitas(self, usuario_id: str) -> dict:
         """ Método para calcular o total de receitas de um usuário """
         try:
@@ -78,7 +79,8 @@ class ReceitaService:
             return {'status': True, 'total': total}
         except Exception as e:
             return {'error': str(e)}
-        
+    
+    ################################################################
     def get_categorias_receitas(self, usuario_id: str) -> dict:
         """ Método para buscar categorias de receitas de um usuário """
         
@@ -100,6 +102,7 @@ class ReceitaService:
             'criado_em': categoria.criado_em.isoformat()
         }
 
+    ################################################################
     def serialize_receita(self, receita: Receita) -> dict:
         """ Método para serializar uma receita """
         return {
@@ -111,3 +114,5 @@ class ReceitaService:
             'descricao': receita.descricao,
             'criado_em': receita.criado_em.isoformat()
         }
+
+################################################################

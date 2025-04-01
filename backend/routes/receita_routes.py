@@ -45,6 +45,7 @@ def delete_receita(receita_id: str) -> jsonify:
 
     return response
 
+################################################################
 @receita_routes.route('/total/<usuario_id>', methods=['GET'])
 @token_authorization
 def get_total_receitas(usuario_id: int) -> jsonify:
@@ -54,6 +55,7 @@ def get_total_receitas(usuario_id: int) -> jsonify:
 
     return response
 
+################################################################
 @receita_routes.route('/categorias/<usuario_id>', methods=['GET'])
 @token_authorization
 def get_categorias_receitas(usuario_id: str) -> jsonify:
@@ -62,3 +64,5 @@ def get_categorias_receitas(usuario_id: str) -> jsonify:
     response = receita_controller.get_categorias_receitas(usuario_id)
 
     return response
+
+################################################################

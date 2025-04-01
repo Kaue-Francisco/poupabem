@@ -48,6 +48,7 @@ class CategoriaController:
 
         return jsonify(response), 200
     
+    ################################################################
     def get_all_categorias(self) -> jsonify:
         """ Método para buscar todas as categorias """
 
@@ -76,6 +77,7 @@ class CategoriaController:
 
         return jsonify(response), 200
     
+    ################################################################
     def total_by_categoria(self, categoria_id: str) -> jsonify:
         """ Método para buscar o total de categorias por usuário """
 
@@ -88,6 +90,7 @@ class CategoriaController:
 
         return jsonify(response), 200
     
+    ################################################################
     def get_categoria_type(self, tipo: str) -> jsonify:
         """ Método para buscar o tipo de uma categoria """
 
