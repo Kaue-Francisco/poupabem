@@ -65,4 +65,13 @@ def get_categorias_receitas(usuario_id: str) -> jsonify:
 
     return response
 
+@receita_routes.route('/por-categoria/<categoria_id>', methods=['GET'])
+@token_authorization
+def get_receitas_by_categoria(categoria_id: str) -> jsonify:
+    """ Método para buscar receitas por categoria """
+
+    response = receita_controller.get_receitas_by_categoria(categoria_id)
+
+    return response
+
 ################################################################

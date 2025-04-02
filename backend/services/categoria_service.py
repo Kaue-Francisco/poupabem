@@ -99,7 +99,7 @@ class CategoriaService:
         """ Método para buscar o tipo de uma categoria """
         try:
             # Busca a categoria pelo ID
-            categoria = self.db_conn.session.query(Categoria).filter_by(id=categoria_id).first()
+            categoria = self.db_conn.session.query(Categoria).filter_by(tipo=tipo).first()
 
             if not categoria:
                 return {'status': False, 'message': 'Categoria não encontrada'}

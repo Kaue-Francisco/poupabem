@@ -91,6 +91,15 @@ class DespesaService:
         except Exception as e:
             return {'error': str(e)}
         
+    def get_despesas_by_categoria(self, categoria_id: str) -> dict:
+        """ Método para buscar despesas de um usuário por categoria """
+        
+        try:
+            # Busca todas as despesas associadas ao usuário e à categoria
+            despesas = self.db_conn.session.query(Despesa).filter_by(categoria_id=categoria_id).all()
+            return {'status': True, 'despesas': [self.serialize_despesa(d) for d in despesas]}
+        except Exception as e:
+            return {'error': str(e)}
 
     ################################################################
     def serialize_despesa(self, despesa: Despesa) -> dict:

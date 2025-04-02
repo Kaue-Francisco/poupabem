@@ -7,6 +7,7 @@ import { apiConfig } from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { jwtDecode } from 'jwt-decode';
+import CategoryTransactionsModal from '../components/CategoryTransactionsModal';
 
 type Category = {
   id: string;
@@ -20,6 +21,8 @@ type CategoriesScreenNavigationProp = NativeStackNavigationProp<RootStackParamLi
 export default function CategoriesScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [totals, setTotals] = useState<{ [key: string]: string }>({});
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const navigation = useNavigation<CategoriesScreenNavigationProp>();
 
   // Função para buscar categorias
@@ -134,10 +137,19 @@ export default function CategoriesScreen() {
   };
 
   const renderItem = ({ item }: { item: Category }) => (
-    <View style={[styles.categoryItem, { borderLeftColor: item.color }]}>
+    <TouchableOpacity 
+      style={[styles.categoryItem, { borderLeftColor: item.color }]}
+      onPress={() => {
+        setSelectedCategory(item);
+        setIsModalVisible(true);
+      }}
+    >
       <View style={styles.categoryHeader}>
         <Text style={styles.categoryName}>{item.name}</Text>
         <View style={styles.iconContainer}>
+          <TouchableOpacity onPress={() => null}>
+            <Icon name="edit" size={20} color="#1461de" style={styles.icon} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={handleDeleteCategory.bind(null, item.id)}>
             <Icon name="trash" size={20} color="#FF6347" style={styles.icon} />
           </TouchableOpacity>
@@ -147,7 +159,7 @@ export default function CategoriesScreen() {
         <Text style={styles.categoryType}>Tipo: {item.type}</Text>
         <Text style={styles.categoryTotal}>Total: R$ {totals[item.id]}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -164,6 +176,19 @@ export default function CategoriesScreen() {
       >
         <Text style={styles.createButtonText}>Criar Categoria</Text>
       </TouchableOpacity>
+
+      {selectedCategory && (
+        <CategoryTransactionsModal
+          visible={isModalVisible}
+          onClose={() => {
+            setIsModalVisible(false);
+            setSelectedCategory(null);
+          }}
+          categoryId={selectedCategory.id}
+          categoryName={selectedCategory.name}
+          categoryType={selectedCategory.type}
+        />
+      )}
     </View>
   );
 }

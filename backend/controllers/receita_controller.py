@@ -99,5 +99,17 @@ class ReceitaController:
             return jsonify({'message': response['error']}), 400
 
         return jsonify(response), 200
+    
+    def get_receitas_by_categoria(self, categoria_id: str) -> jsonify:
+        """ Método para buscar receitas de um usuário por categoria """
+        
+        # Chama o método para buscar as receitas por categoria
+        response = receita_service.get_receitas_by_categoria(categoria_id=categoria_id)
+
+        # Retorna a resposta
+        if 'error' in response:
+            return jsonify({'message': response['error']}), 400
+
+        return jsonify(response), 200
 
 ################################################################

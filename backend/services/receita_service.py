@@ -90,6 +90,17 @@ class ReceitaService:
             return {'status': True, 'categorias': [self.serialize_categoria(c) for c in categorias]}
         except Exception as e:
             return {'error': str(e)}
+    
+    ################################################################
+    def get_receitas_by_categoria(self, categoria_id: str) -> dict:
+        """ Método para buscar receitas de um usuário por categoria """
+        
+        try:
+            # Busca todas as receitas associadas ao usuário e à categoria
+            receitas = self.db_conn.session.query(Receita).filter_by(categoria_id=categoria_id).all()
+            return {'status': True, 'receitas': [self.serialize_receita(d) for d in receitas]}
+        except Exception as e:
+            return {'error': str(e)}
 
     ################################################################
     def serialize_categoria(self, categoria: Categoria) -> dict:
