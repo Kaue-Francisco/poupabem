@@ -31,7 +31,6 @@ Este é um aplicativo de Finanças Pessoais desenvolvido como parte da disciplin
 
 ---
 
-Este aplicativo foi projetado para ajudar os usuários a gerenciar suas finanças de forma prática e eficiente, promovendo uma melhor organização e controle financeiro.
 
 ## 📓 Backlog do Projeto
 
