@@ -71,5 +71,51 @@ O projeto será realizado em 3 sprints.
 - PostgreSQL
 - TypeScript
 
+## 🧑‍💻 Como Executar?
+``` bash
+# Clone o repositório
+git clone https://github.com/Kaue-Francisco/poupabem.git
+
+# Acesse o repositório
+cd poupabem
+
+# Acesse a pasta do frontend e baixe as dependências.
+cd frontend
+npm install
+
+# Volte a pasta, acesse a pasta do backend e crie um ambiente virtual
+cd ..
+cd backend
+python -m venv venv
+
+# Acesse o ambiente virtual e instale as dependências
+
+# Windows
+.\venv\Scripts\activate
+
+# Linux
+source venv/bin/activate
+
+pip install -r requeriments.txt
+
+# Agora com as dependências instaladas é necessário criar o banco de dados postgreSQL com o script na pasta database.
+# E também modificar a conexão com o banco de dados no arquivo config_database.py para a sua conexão com o banco de dados.
+self.app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://<seunomedousuario>:<suasenha>@localhost:5432/poupabem'
+
+# E no frontend é necessário você alterar no arquivo api.ts o ip para o ip de sua máquina local.
+  if (__DEV__) {
+    return 'http://192.168.15.103:5000';
+  }
+
+# Fazendo tudo isso acesse 2 terminais, 1 na pasta frontend e outro na pasta backend e execute os seguintes comandos para iniciar o sistema.
+
+# Frontend
+npm start
+
+# Backend
+flask run --debug --host=0.0.0.0
+
+```
+
 ## 👤 Desenvolvedor
 Kauê dos Santos Francisco
