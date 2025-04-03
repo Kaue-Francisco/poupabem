@@ -68,7 +68,7 @@ export default function LoginScreen() {
       />
       
       <TextInput
-        style={styles.inputPassword}
+        style={styles.input}
         placeholder="Senha"
         value={senha}
         onChangeText={setSenha}
@@ -79,22 +79,24 @@ export default function LoginScreen() {
         <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
       </TouchableOpacity>
       
-      <TouchableOpacity 
-        style={[styles.button, loading && styles.buttonDisabled]} 
-        onPress={handleLogin}
-        disabled={loading}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? 'Entrando...' : 'Entrar'}
-        </Text>
-      </TouchableOpacity>
+      <View style={styles.bottomButtons}>
+        <TouchableOpacity 
+          style={[styles.button, loading && styles.buttonDisabled]} 
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? 'Entrando...' : 'Entrar'}
+          </Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity 
-        style={styles.registerButton}
-        onPress={() => navigation.navigate('Register')}
-      >
-        <Text style={styles.registerText}>Não tem uma conta? Criar conta</Text>
-      </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.registerButton}
+          onPress={() => navigation.navigate('Register')}
+        >
+          <Text style={styles.registerText}>Não tem uma conta? Criar conta</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -102,33 +104,34 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     padding: 20,
     backgroundColor: '#fff',
   },
   title: {
+    marginTop: 30,
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 30,
-    textAlign: 'center',
+    marginBottom: 20,
+    textAlign: 'left', // Alinha o título à esquerda
   },
   input: {
     height: 50,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
     marginBottom: 15,
     fontSize: 16,
+    textAlign: 'left', // Alinha o texto à esquerda
   },
-  inputPassword: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    marginBottom: 3,
-    fontSize: 16,
+  forgotPasswordText: {
+    color: '#007AFF',
+    fontSize: 14,
+    marginBottom: 20,
+    textAlign: 'left', // Alinha o texto à esquerda
+  },
+  bottomButtons: {
+    flex: 1,
+    justifyContent: 'flex-end', // Move os botões para a parte inferior
   },
   button: {
     backgroundColor: '#007AFF',
@@ -136,7 +139,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginBottom: 10, // Espaçamento entre os botões
   },
   buttonDisabled: {
     backgroundColor: '#ccc',
@@ -146,16 +149,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  forgotPasswordText: {
-    color: '#007AFF',
-    fontSize: 14,
-  },
   registerButton: {
-    marginTop: 15,
     alignItems: 'center',
   },
   registerText: {
     color: '#007AFF',
     fontSize: 14,
   },
-}); 
+});
