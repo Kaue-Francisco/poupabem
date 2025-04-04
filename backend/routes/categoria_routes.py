@@ -56,6 +56,18 @@ def delete_categoria(categoria_id: str) -> jsonify:
     return response
 
 ################################################################
+@categoria_routes.route('/update/<categoria_id>', methods=['POST'])
+@token_authorization
+def update_categoria(categoria_id: str) -> jsonify:
+    """ Método para atualizar uma categoria """
+
+    data = request.get_json()
+
+    response = categoria_controller.update_categoria(categoria_id, data)
+
+    return response
+
+################################################################
 @categoria_routes.route('/total/<categoria_id>', methods=['GET'])
 @token_authorization
 def total_by_categoria(categoria_id: str) -> jsonify:

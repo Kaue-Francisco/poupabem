@@ -4,6 +4,7 @@
 from flask import request, jsonify                       # Registrar as rotas e métodos HTTP
 from services.categoria_service import CategoriaService  # Serviço de categoria
 from database_instance import database_config            # Instância do banco de dados
+from models.categoria_model import Categoria             # Modelo de categoria
 
 ################################################################
 # Defined
@@ -41,7 +42,7 @@ class CategoriaController:
 
         # Chama o método para buscar as categorias
         response = categoria_service.get_categorias_by_usuario(usuario_id=usuario_id)
-
+        print(response)
         # Retorna a resposta
         if 'error' in response:
             return jsonify({'message': response['error']}), 400
@@ -74,6 +75,42 @@ class CategoriaController:
 
         if response.get('status') == False:
             return jsonify({'message': response['message']}), 404
+
+        return jsonify(response), 200
+    
+    ################################################################
+    def update_categoria(self, categoria_id: str, data: dict) -> jsonify:
+        """ Método para atualizar uma categoria """
+
+        # Coleta os dados enviados pelo usuário
+        nome, tipo = data['nome'], data['tipo']
+
+        # Valida o tipo da categoria
+        if tipo not in ['receita', 'despesa']:
+            return jsonify({'message': 'O tipo da categoria deve ser "receita" ou "despesa".'}), 400
+
+        # Obtém a categoria atual para verificar se o tipo está sendo alterado
+        categoria_atual = db_conn.session.query(Categoria).filter_by(id=categoria_id).first()
+        
+        tipo_alterado = False
+        if categoria_atual and categoria_atual.tipo != tipo:
+            tipo_alterado = True
+            tipo_original = categoria_atual.tipo
+            tipo_novo = tipo
+
+        # Chama o método para atualizar a categoria
+        response = categoria_service.update_categoria(categoria_id=categoria_id, nome=nome, tipo=tipo)
+
+        # Retorna a resposta
+        if 'error' in response:
+            return jsonify({'message': response['error']}), 400
+
+        if response.get('status') == False:
+            return jsonify({'message': response['message']}), 400
+
+        # Se o tipo foi alterado, adiciona informação adicional na mensagem
+        if tipo_alterado:
+            response['message'] = f"Categoria atualizada com sucesso! Todas as transações foram convertidas de {tipo_original} para {tipo_novo}."
 
         return jsonify(response), 200
     

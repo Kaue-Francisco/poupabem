@@ -75,6 +75,66 @@ class CategoriaService:
         return {'message': 'Categoria e registros vinculados deletados com sucesso!'}
     
     ################################################################
+    def update_categoria(self, categoria_id: str, nome: str, tipo: str) -> dict:
+        """ Método para atualizar uma categoria, convertendo suas transações se o tipo mudar """
+        try:
+            # Busca a categoria pelo ID
+            categoria = self.db_conn.session.query(Categoria).filter_by(id=categoria_id).first()
+
+            if not categoria:
+                return {'status': False, 'message': 'Categoria não encontrada'}
+            
+            # Verifica se o tipo está sendo alterado
+            if categoria.tipo != tipo:
+                # Se o tipo mudou, convertemos todas as transações
+                if categoria.tipo == 'receita' and tipo == 'despesa':
+                    # Converte de receita para despesa
+                    receitas = self.db_conn.session.query(Receita).filter_by(categoria_id=categoria_id).all()
+                    for receita in receitas:
+                        # Cria uma nova despesa com os mesmos dados da receita
+                        nova_despesa = Despesa(
+                            usuario_id=receita.usuario_id,
+                            categoria_id=receita.categoria_id,
+                            valor=receita.valor,
+                            descricao=receita.descricao,
+                            data=receita.data
+                        )
+                        self.db_conn.session.add(nova_despesa)
+                    
+                    # Exclui as receitas originais
+                    self.db_conn.session.query(Receita).filter_by(categoria_id=categoria_id).delete()
+                
+                elif categoria.tipo == 'despesa' and tipo == 'receita':
+                    # Converte de despesa para receita
+                    despesas = self.db_conn.session.query(Despesa).filter_by(categoria_id=categoria_id).all()
+                    for despesa in despesas:
+                        # Cria uma nova receita com os mesmos dados da despesa
+                        nova_receita = Receita(
+                            usuario_id=despesa.usuario_id,
+                            categoria_id=despesa.categoria_id,
+                            valor=despesa.valor,
+                            descricao=despesa.descricao,
+                            data=despesa.data
+                        )
+                        self.db_conn.session.add(nova_receita)
+                    
+                    # Exclui as despesas originais
+                    self.db_conn.session.query(Despesa).filter_by(categoria_id=categoria_id).delete()
+            
+            # Atualiza os dados da categoria
+            categoria.nome = nome
+            categoria.tipo = tipo
+            
+            # Comita as alterações
+            self.db_conn.session.commit()
+            
+            return {'status': True, 'message': 'Categoria atualizada com sucesso!'}
+        except Exception as e:
+            # Rollback em caso de erro
+            self.db_conn.session.rollback()
+            return {'error': str(e)}
+    
+    ################################################################
     def total_by_categoria(self, categoria_id: str) -> dict:
         """ Método para buscar o total de categorias por usuário """
         try:
