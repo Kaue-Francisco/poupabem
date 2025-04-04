@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { jwtDecode } from 'jwt-decode';
 import CategoryTransactionsModal from '../components/CategoryTransactionsModal';
+import EditCategoryModal from '../components/EditCategoryModal';
 
 type Category = {
   id: string;
@@ -23,6 +24,8 @@ export default function CategoriesScreen() {
   const [totals, setTotals] = useState<{ [key: string]: string }>({});
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null);
   const navigation = useNavigation<CategoriesScreenNavigationProp>();
 
   // Função para buscar categorias
@@ -92,7 +95,7 @@ export default function CategoriesScreen() {
           return;
         }
         
-        fetchCategories(token, decodedToken.id);
+        fetchCategories(token, parseInt(decodedToken.id));
       } catch (error) {
         console.error('Erro ao inicializar CategoriesScreen:', error);
       }
@@ -136,6 +139,11 @@ export default function CategoriesScreen() {
     }
   };
 
+  const handleEditCategory = (category: Category) => {
+    setCategoryToEdit(category);
+    setIsEditModalVisible(true);
+  };
+
   const renderItem = ({ item }: { item: Category }) => (
     <TouchableOpacity 
       style={[styles.categoryItem, { borderLeftColor: item.color }]}
@@ -147,7 +155,7 @@ export default function CategoriesScreen() {
       <View style={styles.categoryHeader}>
         <Text style={styles.categoryName}>{item.name}</Text>
         <View style={styles.iconContainer}>
-          <TouchableOpacity onPress={() => null}>
+          <TouchableOpacity onPress={() => handleEditCategory(item)}>
             <Icon name="edit" size={20} color="#1461de" style={styles.icon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleDeleteCategory.bind(null, item.id)}>
@@ -187,6 +195,34 @@ export default function CategoriesScreen() {
           categoryId={selectedCategory.id}
           categoryName={selectedCategory.name}
           categoryType={selectedCategory.type}
+        />
+      )}
+
+      {categoryToEdit && (
+        <EditCategoryModal
+          visible={isEditModalVisible}
+          onClose={() => {
+            setIsEditModalVisible(false);
+            setCategoryToEdit(null);
+          }}
+          onSuccess={() => {
+            // Recarregar categorias após a edição
+            const loadData = async () => {
+              try {
+                const token = await AsyncStorage.getItem('userToken');
+                const decodedToken = jwtDecode(token || '') as { id: string };
+                if (!token) {
+                  console.error('Token não encontrado');
+                  return;
+                }
+                fetchCategories(token, parseInt(decodedToken.id));
+              } catch (error) {
+                console.error('Erro ao recarregar categorias:', error);
+              }
+            };
+            loadData();
+          }}
+          category={categoryToEdit}
         />
       )}
     </View>
