@@ -15,12 +15,12 @@ class CategoriaService:
         self.db_conn = db_conn
 
     ################################################################
-    def create_categoria(self, usuario_id: str, nome: str, tipo: str) -> dict:
+    def create_categoria(self, usuario_id: str, nome: str, tipo: str, limite_gasto: float = None) -> dict:
         """ Método para criar uma nova categoria """
 
         try:
             # Cria uma nova instância de Categoria
-            categoria = Categoria(usuario_id=usuario_id, nome=nome, tipo=tipo)
+            categoria = Categoria(usuario_id=usuario_id, nome=nome, tipo=tipo, limite_gasto=limite_gasto)
             self.db_conn.session.add(categoria)
             self.db_conn.session.commit()
         except Exception as e:
@@ -75,7 +75,7 @@ class CategoriaService:
         return {'message': 'Categoria e registros vinculados deletados com sucesso!'}
     
     ################################################################
-    def update_categoria(self, categoria_id: str, nome: str, tipo: str) -> dict:
+    def update_categoria(self, categoria_id: str, nome: str, tipo: str, limite_gasto: float = None) -> dict:
         """ Método para atualizar uma categoria, convertendo suas transações se o tipo mudar """
         try:
             # Busca a categoria pelo ID
@@ -124,6 +124,7 @@ class CategoriaService:
             # Atualiza os dados da categoria
             categoria.nome = nome
             categoria.tipo = tipo
+            categoria.limite_gasto = limite_gasto
             
             # Comita as alterações
             self.db_conn.session.commit()
@@ -176,6 +177,7 @@ class CategoriaService:
             'usuario_id': categoria.usuario_id,
             'nome': categoria.nome,
             'tipo': categoria.tipo,
+            'limite_gasto': float(categoria.limite_gasto) if categoria.limite_gasto else None,
             'criado_em': categoria.criado_em.isoformat()
         }
 

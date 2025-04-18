@@ -15,6 +15,7 @@ type Category = {
   name: string;
   color: string;
   type: string;
+  limite_gasto?: number;
 };
 
 type CategoriesScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Categories'>;
@@ -46,6 +47,7 @@ export default function CategoriesScreen() {
           name: cat.nome,
           color: cat.tipo === 'despesa' ? '#FF6347' : '#32CD32',
           type: cat.tipo,
+          limite_gasto: cat.limite_gasto,
         }));
 
         setCategories(mappedCategories);
@@ -63,7 +65,7 @@ export default function CategoriesScreen() {
     const totalsMap: { [key: string]: string } = {};
     try {
       for (const category of categories) {
-        const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.totalPorCategoria(category.id)}`, {
+        const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.totalPorCategoria(parseInt(category.id))}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -89,13 +91,27 @@ export default function CategoriesScreen() {
     const unsubscribe = navigation.addListener('focus', async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
-        const decodedToken = jwtDecode(token || '') as { id: string };
         if (!token) {
           console.error('Token não encontrado');
           return;
         }
         
-        fetchCategories(token, parseInt(decodedToken.id));
+        // Decodificar o token JWT corretamente
+        const tokenParts = token.split('.');
+        if (tokenParts.length !== 3) {
+          console.error('Token inválido');
+          return;
+        }
+        
+        const payload = JSON.parse(atob(tokenParts[1]));
+        const userId = payload.id;
+        
+        if (!userId) {
+          console.error('ID do usuário não encontrado no token');
+          return;
+        }
+        
+        fetchCategories(token, parseInt(userId));
       } catch (error) {
         console.error('Erro ao inicializar CategoriesScreen:', error);
       }
@@ -111,7 +127,7 @@ export default function CategoriesScreen() {
         console.error('Token não encontrado');
         return;
       }
-      const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.deletarCategoria(categoryId)}`, {
+      const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.deletarCategoria(parseInt(categoryId))}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -144,31 +160,61 @@ export default function CategoriesScreen() {
     setIsEditModalVisible(true);
   };
 
-  const renderItem = ({ item }: { item: Category }) => (
-    <TouchableOpacity 
-      style={[styles.categoryItem, { borderLeftColor: item.color }]}
-      onPress={() => {
-        setSelectedCategory(item);
-        setIsModalVisible(true);
-      }}
-    >
-      <View style={styles.categoryHeader}>
-        <Text style={styles.categoryName}>{item.name}</Text>
-        <View style={styles.iconContainer}>
-          <TouchableOpacity onPress={() => handleEditCategory(item)}>
-            <Icon name="edit" size={20} color="#1461de" style={styles.icon} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleDeleteCategory.bind(null, item.id)}>
-            <Icon name="trash" size={20} color="#FF6347" style={styles.icon} />
-          </TouchableOpacity>
+  const renderItem = ({ item }: { item: Category }) => {
+    const total = parseFloat(totals[item.id] || '0');
+    const limite = item.limite_gasto || 0;
+    const percentual = limite > 0 ? (total / limite) * 100 : 0;
+    const isNearLimit = percentual >= 80 && percentual < 100;
+    const isOverLimit = percentual >= 100;
+
+    return (
+      <TouchableOpacity 
+        style={[styles.categoryItem, { borderLeftColor: item.color }]}
+        onPress={() => {
+          setSelectedCategory(item);
+          setIsModalVisible(true);
+        }}
+      >
+        <View style={styles.categoryHeader}>
+          <Text style={styles.categoryName}>{item.name}</Text>
+          <View style={styles.iconContainer}>
+            <TouchableOpacity onPress={() => handleEditCategory(item)}>
+              <Icon name="edit" size={20} color="#1461de" style={styles.icon} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleDeleteCategory.bind(null, item.id)}>
+              <Icon name="trash" size={20} color="#FF6347" style={styles.icon} />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-      <View style={styles.categoryInfo}>
-        <Text style={styles.categoryType}>Tipo: {item.type}</Text>
-        <Text style={styles.categoryTotal}>Total: R$ {totals[item.id]}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+        <View style={styles.categoryInfo}>
+          <Text style={styles.categoryType}>Tipo: {item.type}</Text>
+          <Text style={styles.categoryTotal}>Total: R$ {totals[item.id]}</Text>
+          {item.type === 'despesa' && item.limite_gasto && (
+            <View style={styles.limitContainer}>
+              <Text style={styles.limitText}>Limite: R$ {item.limite_gasto.toFixed(2)}</Text>
+              <View style={styles.progressBarContainer}>
+                <View 
+                  style={[
+                    styles.progressBar, 
+                    { 
+                      width: `${Math.min(percentual, 100)}%`,
+                      backgroundColor: isOverLimit ? '#FF3B30' : isNearLimit ? '#FF9500' : '#34C759'
+                    }
+                  ]} 
+                />
+              </View>
+              {isNearLimit && !isOverLimit && (
+                <Text style={styles.warningText}>Aproximando-se do limite!</Text>
+              )}
+              {isOverLimit && (
+                <Text style={styles.errorText}>Limite excedido!</Text>
+              )}
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -287,5 +333,33 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  limitContainer: {
+    marginTop: 10,
+  },
+  limitText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 5,
+  },
+  progressBarContainer: {
+    height: 8,
+    backgroundColor: '#E5E5EA',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  warningText: {
+    color: '#FF9500',
+    fontSize: 12,
+    marginTop: 5,
+  },
+  errorText: {
+    color: '#FF3B30',
+    fontSize: 12,
+    marginTop: 5,
   },
 });

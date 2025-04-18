@@ -22,6 +22,7 @@ type EditCategoryModalProps = {
     id: string;
     name: string;
     type: string;
+    limite_gasto?: number;
   };
 };
 
@@ -33,6 +34,7 @@ export default function EditCategoryModal({
 }: EditCategoryModalProps) {
   const [name, setName] = useState(category.name);
   const [type, setType] = useState(category.type);
+  const [limiteGasto, setLimiteGasto] = useState(category.limite_gasto?.toString() || '');
   const [loading, setLoading] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
 
@@ -40,6 +42,7 @@ export default function EditCategoryModal({
   useEffect(() => {
     setName(category.name);
     setType(category.type);
+    setLimiteGasto(category.limite_gasto?.toString() || '');
     setShowWarning(false);
   }, [category]);
 
@@ -55,7 +58,7 @@ export default function EditCategoryModal({
     }
 
     // Verificar se nada foi alterado
-    if (name === category.name && type === category.type) {
+    if (name === category.name && type === category.type && limiteGasto === category.limite_gasto?.toString()) {
       Alert.alert('Informação', 'Nenhuma alteração foi feita');
       onClose();
       return;
@@ -91,16 +94,16 @@ export default function EditCategoryModal({
         return;
       }
 
-      // Usar o endpoint correto para atualização
-      const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.atualizarCategoria(category.id)}`, {
-        method: 'POST',
+      const response = await fetch(`${apiConfig.baseUrl}/categoria/update/${category.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           nome: name,
-          tipo: type
+          tipo: type,
+          limite_gasto: limiteGasto ? parseFloat(limiteGasto) : null,
         }),
       });
 
@@ -161,6 +164,21 @@ export default function EditCategoryModal({
               </Picker>
             </View>
           </View>
+
+          {type === 'despesa' && (
+            <>
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Limite de Gastos (R$)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={limiteGasto}
+                  onChangeText={setLimiteGasto}
+                  placeholder="Limite de gastos"
+                  keyboardType="numeric"
+                />
+              </View>
+            </>
+          )}
 
           {showWarning && (
             <View style={styles.warningContainer}>

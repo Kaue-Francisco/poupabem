@@ -16,6 +16,7 @@ class Categoria(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
     nome = db.Column(db.String(255), nullable=False)
     tipo = db.Column(db.String(255), nullable=False)
+    limite_gasto = db.Column(db.Numeric(10, 2), nullable=True)
     criado_em = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     __table_args__ = (

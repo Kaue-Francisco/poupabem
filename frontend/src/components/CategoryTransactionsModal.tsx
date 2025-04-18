@@ -54,8 +54,8 @@ export default function CategoryTransactionsModal({
   
       const endpoint =
         categoryType === 'despesa'
-          ? apiConfig.endpoints.despesasPorCategoria(categoryId)
-          : apiConfig.endpoints.receitasPorCategoria(categoryId);
+          ? apiConfig.endpoints.despesasPorCategoria(parseInt(categoryId))
+          : apiConfig.endpoints.receitasPorCategoria(parseInt(categoryId));
   
       const response = await fetch(`${apiConfig.baseUrl}${endpoint}`, {
         method: 'GET',
@@ -81,7 +81,7 @@ export default function CategoryTransactionsModal({
           description: trans.descricao,
           amount: trans.valor,
           date: new Date(trans.data).toLocaleDateString('pt-BR'),
-          type: 'despesa', // Adicionado manualmente, já que o tipo não está no retorno
+          type: categoryType,
         }));
         setTransactions(mappedTransactions);
       } else {

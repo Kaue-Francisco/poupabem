@@ -17,6 +17,7 @@ CREATE TABLE "categoria"(
         (
             "tipo" IN ('receita', 'despesa')
         ),
+    "limite_gasto" DECIMAL(10, 2),
     "criado_em" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
 ALTER TABLE

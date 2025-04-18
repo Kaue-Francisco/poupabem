@@ -21,14 +21,26 @@ class CategoriaController:
         """ Método para criar uma nova categoria """
 
         # Coleta os dados enviados pelo usuário
-        usuario_id, nome, tipo = data['usuario_id'], data['nome'], data['tipo']
+        usuario_id = data.get('usuario_id')
+        nome = data.get('nome')
+        tipo = data.get('tipo')
+        limite_gasto = data.get('limite_gasto')
+
+        # Valida os dados obrigatórios
+        if not all([usuario_id, nome, tipo]):
+            return jsonify({'message': 'Usuário, nome e tipo são campos obrigatórios.'}), 400
 
         # Valida o tipo da categoria
         if tipo not in ['receita', 'despesa']:
             return jsonify({'message': 'O tipo da categoria deve ser "receita" ou "despesa".'}), 400
 
         # Chama o método para criar a categoria
-        response = categoria_service.create_categoria(usuario_id=usuario_id, nome=nome, tipo=tipo)
+        response = categoria_service.create_categoria(
+            usuario_id=usuario_id,
+            nome=nome,
+            tipo=tipo,
+            limite_gasto=limite_gasto
+        )
 
         # Retorna a resposta
         if 'error' in response:
@@ -83,7 +95,9 @@ class CategoriaController:
         """ Método para atualizar uma categoria """
 
         # Coleta os dados enviados pelo usuário
-        nome, tipo = data['nome'], data['tipo']
+        nome = data.get('nome')
+        tipo = data.get('tipo')
+        limite_gasto = data.get('limite_gasto')
 
         # Valida o tipo da categoria
         if tipo not in ['receita', 'despesa']:
@@ -99,7 +113,12 @@ class CategoriaController:
             tipo_novo = tipo
 
         # Chama o método para atualizar a categoria
-        response = categoria_service.update_categoria(categoria_id=categoria_id, nome=nome, tipo=tipo)
+        response = categoria_service.update_categoria(
+            categoria_id=categoria_id,
+            nome=nome,
+            tipo=tipo,
+            limite_gasto=limite_gasto
+        )
 
         # Retorna a resposta
         if 'error' in response:
