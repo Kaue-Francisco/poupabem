@@ -44,6 +44,18 @@ CREATE TABLE "receita"(
 );
 ALTER TABLE
     "receita" ADD PRIMARY KEY("id");
+CREATE TABLE "meta_financeira" (
+    "id" SERIAL NOT NULL,
+    "usuario_id" INTEGER NOT NULL,
+    "titulo" VARCHAR(255) NOT NULL,
+    "valor_atual" DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    "valor_meta" DECIMAL(10, 2) NOT NULL,
+    "data_inicio" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "data_fim" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "criado_em" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE "meta_financeira" ADD PRIMARY KEY ("id");
 CREATE TABLE "orcamento"(
     "id" SERIAL NOT NULL,
     "usuario_id" SERIAL NOT NULL,
@@ -64,3 +76,5 @@ ALTER TABLE
     "receita" ADD CONSTRAINT "receita_categoria_id_foreign" FOREIGN KEY("categoria_id") REFERENCES "categoria"("id");
 ALTER TABLE
     "categoria" ADD CONSTRAINT "categoria_usuario_id_foreign" FOREIGN KEY("usuario_id") REFERENCES "users"("id");
+ALTER TABLE 
+    "meta_financeira" ADD CONSTRAINT "meta_financeira_usuario_id_foreign" FOREIGN KEY ("usuario_id") REFERENCES "users" ("id");

@@ -1,0 +1,27 @@
+################################################################################
+# Imports
+
+from models.meta_financeira_model import MetaFinanceira 
+from flask_sqlalchemy import SQLAlchemy
+
+################################################################################
+# Main
+
+class MetaFinanceiraService:
+
+    def __init__(self, db_conn: SQLAlchemy):
+        self.db_conn = db_conn
+
+    ################################################################
+    def create_meta_financeira(self, usuario_id: str, titulo: str, valor_atual: float, valor_meta: float, data_inicio: str, data_fim: str) -> dict:
+        """ Método para criar uma nova meta financeira """
+
+        try:
+            # Cria uma nova instância de MetaFinanceira
+            meta = MetaFinanceira(usuario_id=usuario_id, titulo=titulo, valor_atual=valor_atual,valor_meta=valor_meta, data_inicio=data_inicio, data_fim=data_fim)
+            self.db_conn.session.add(meta)
+            self.db_conn.session.commit()
+        except Exception as e:
+            return {'error': str(e)}
+
+        return {'message': 'Meta financeira criada com sucesso!'}
