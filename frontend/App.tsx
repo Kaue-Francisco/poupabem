@@ -12,6 +12,7 @@ import ExpensesScreen from './src/screens/ExpensesScreen';
 import IncomeScreen from './src/screens/IncomeScreen';
 import CategoriesScreen from './src/screens/CategoriesScreen';
 import CreateCategoryScreen from './src/screens/CreateCategoryScreen';
+import MetasFinanceirasScreen from './src/screens/MetasFinanceirasScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -28,6 +29,7 @@ export default function App() {
         <Stack.Screen name="Expenses" component={ExpensesScreen} options={{ headerShown: true, title: 'Adicionar Despesas', headerBackTitle: 'Voltar' }}/>
         <Stack.Screen name="Income" component={IncomeScreen} options={{ headerShown: true, title: 'Adicionar Receitas', headerBackTitle: 'Voltar' }}/>
         <Stack.Screen name="CreateCategory" component={CreateCategoryScreen} options={{ headerShown: true,title: 'Criar Categoria',headerBackTitle: 'Voltar'}} />
+        <Stack.Screen name="MetasFinanceiras" component={MetasFinanceirasScreen} options={{ headerShown: true,title: 'Criar Categoria',headerBackTitle: 'Voltar'}} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

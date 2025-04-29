@@ -60,7 +60,7 @@ class MetaFinanceiraController:
         valor_atual = self.pegar_valor_atual(usuario_id)
 
         # Valida os dados obrigatórios
-        if not all([usuario_id, titulo, valor_atual, valor_meta, data_inicio, data_fim]):
+        if not all([usuario_id, titulo, valor_meta, data_inicio, data_fim]):
             return jsonify({'message': 'Usuário, título, valor atual, valor meta, data de início e data de fim são campos obrigatórios.'}), 400
 
         # Chama o método para criar a meta financeira

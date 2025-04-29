@@ -29,6 +29,11 @@ export default function HomeScreen() {
     navigation.navigate('Income');
   };
 
+  const handleMetasFinanceiras = () => {
+    navigation.navigate('MetasFinanceiras');
+  };
+
+
   const fetchReceitas = async (token: string, userId: number) => {
     try {
       const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.totalReceita(userId)}`, {
@@ -158,6 +163,11 @@ export default function HomeScreen() {
         <TouchableOpacity style={styles.menuItem} onPress={handleReceitas}>
           <Text style={styles.menuItemTitle}>Receitas</Text>
           <Text style={styles.menuItemDescription}>Registre suas receitas</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuItem} onPress={handleMetasFinanceiras}>
+          <Text style={styles.menuItemTitle}>Metas Financeiras</Text>
+          <Text style={styles.menuItemDescription}>Gerencie as suas metas</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>

@@ -8,4 +8,5 @@ export type RootStackParamList = {
   Income: undefined;
   Welcome: undefined;
   CreateCategory: undefined;
+  MetasFinanceiras: undefined;
 };
