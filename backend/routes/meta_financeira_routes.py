@@ -42,3 +42,14 @@ def delete_meta(meta_id: str) -> jsonify:
     response = meta_financeira_controller.delete_meta(meta_id)
 
     return response
+
+@meta_financeira_routes.route('/update/', methods=['PUT'])
+@token_authorization
+def update_meta() -> jsonify:
+    """ Método para atualizar uma meta financeira """
+
+    data = request.get_json()
+
+    response = meta_financeira_controller.update_meta(data)
+
+    return response

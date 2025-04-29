@@ -92,6 +92,38 @@ class MetaFinanceiraController:
 
         return jsonify(response), 200
     
+    #############################################################################
+    def update_meta(self, data: dict) -> jsonify:
+        """ Método para atualizar uma meta financeira """
+        
+        # Coleta os dados enviados pelo usuário
+        meta_id = data.get('meta_id')
+        usuario_id = data.get('usuario_id')
+        titulo = data.get('titulo')
+        valor_meta = data.get('valor_meta')
+        data_inicio = data.get('data_inicio')
+        data_fim = data.get('data_fim')
+
+        # Valida os dados obrigatórios
+        if not all([usuario_id, titulo, valor_meta, data_inicio, data_fim]):
+            return jsonify({'message': 'Usuário, título, valor meta, data de início e data de fim são campos obrigatórios.'}), 400
+
+        # Chama o método para atualizar a meta
+        response = meta_financeira_service.update_meta(
+            meta_id=meta_id,
+            usuario_id=usuario_id,
+            titulo=titulo,
+            valor_meta=valor_meta,
+            data_inicio=data_inicio,
+            data_fim=data_fim
+        )
+
+        # Retorna a resposta
+        if 'error' in response:
+            return jsonify({'message': response['error']}), 400
+
+        return jsonify(response), 200
+    
     ################################################################################
     def delete_meta(self, meta_id: str) -> jsonify:
         """ Método para deletar uma meta financeira """

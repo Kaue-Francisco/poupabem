@@ -57,6 +57,30 @@ class MetaFinanceiraService:
         return {'message': 'Meta financeira deletada com sucesso!'}
 
     ################################################################
+    def update_meta(self, meta_id: str, usuario_id: str, titulo:str, valor_meta: float, data_inicio, data_fim) -> dict:
+        """ Método para atualizar uma meta financeira """
+
+        try:
+            # Busca a meta pelo ID
+            meta = self.db_conn.session.query(MetaFinanceira).filter_by(id=meta_id).first()
+
+            if not meta:
+                return {'error': 'Meta não encontrada'}
+
+            # Atualiza os dados da meta
+            meta.usuario_id = usuario_id
+            meta.titulo = titulo
+            meta.valor_meta = valor_meta
+            meta.data_inicio = data_inicio
+            meta.data_fim = data_fim
+
+            self.db_conn.session.commit()
+        except Exception as e:
+            return {'error': str(e)}
+
+        return {'message': 'Meta financeira atualizada com sucesso!'}
+
+    ################################################################
     def serialize_meta(self, meta: MetaFinanceira) -> dict:
         """ Método para serializar uma meta financeira """
         return {
