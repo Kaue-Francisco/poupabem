@@ -47,7 +47,7 @@ class MetaFinanceiraController:
         
         return valor_atual
 
-
+    ################################################################################
     def create_meta_financeira(self, data: dict) -> jsonify:
         """ Método para criar uma nova meta financeira """
 
@@ -78,3 +78,29 @@ class MetaFinanceiraController:
             return jsonify({'message': response['error']}), 400
 
         return jsonify(response), 201
+    
+    ################################################################################
+    def get_metas_by_usuario(self, usuario_id: str) -> jsonify:
+        """ Método para buscar metas financeiras de um usuário """
+
+        # Chama o método para buscar as metas
+        response = meta_financeira_service.get_metas_by_usuario(usuario_id=usuario_id)
+
+        # Retorna a resposta
+        if 'error' in response:
+            return jsonify({'message': response['error']}), 400
+
+        return jsonify(response), 200
+    
+    ################################################################################
+    def delete_meta(self, meta_id: str) -> jsonify:
+        """ Método para deletar uma meta financeira """
+        
+        # Chama o método para deletar a meta
+        response = meta_financeira_service.delete_meta(meta_id=meta_id)
+
+        # Retorna a resposta
+        if 'error' in response:
+            return jsonify({'message': response['error']}), 400
+
+        return jsonify(response), 200

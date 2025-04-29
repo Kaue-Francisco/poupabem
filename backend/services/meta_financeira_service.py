@@ -25,3 +25,46 @@ class MetaFinanceiraService:
             return {'error': str(e)}
 
         return {'message': 'Meta financeira criada com sucesso!'}
+    
+    ################################################################
+    def get_metas_by_usuario(self, usuario_id: str) -> dict:
+        """ Método para buscar metas financeiras de um usuário """
+
+        try:
+            # Busca todas as metas associadas ao usuário
+            metas = self.db_conn.session.query(MetaFinanceira).filter_by(usuario_id=usuario_id).all()
+            return {'status': True, 'metas': [self.serialize_meta(meta) for meta in metas]}
+        except Exception as e:
+            return {'error': str(e)}
+        
+    ################################################################
+    def delete_meta(self, meta_id: str) -> dict:
+        """ Método para deletar uma meta financeira """
+        
+        try:
+            # Busca a meta pelo ID
+            meta = self.db_conn.session.query(MetaFinanceira).filter_by(id=meta_id).first()
+
+            if not meta:
+                return {'error': 'Meta não encontrada'}
+
+            # Deleta a meta
+            self.db_conn.session.delete(meta)
+            self.db_conn.session.commit()
+        except Exception as e:
+            return {'error': str(e)}
+
+        return {'message': 'Meta financeira deletada com sucesso!'}
+
+    ################################################################
+    def serialize_meta(self, meta: MetaFinanceira) -> dict:
+        """ Método para serializar uma meta financeira """
+        return {
+            'id': meta.id,
+            'usuario_id': meta.usuario_id,
+            'titulo': meta.titulo,
+            'valor_atual': meta.valor_atual,
+            'valor_meta': meta.valor_meta,
+            'data_inicio': meta.data_inicio,
+            'data_fim': meta.data_fim
+        }
