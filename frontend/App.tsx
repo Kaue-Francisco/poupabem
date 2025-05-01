@@ -29,7 +29,7 @@ export default function App() {
         <Stack.Screen name="Expenses" component={ExpensesScreen} options={{ headerShown: true, title: 'Adicionar Despesas', headerBackTitle: 'Voltar' }}/>
         <Stack.Screen name="Income" component={IncomeScreen} options={{ headerShown: true, title: 'Adicionar Receitas', headerBackTitle: 'Voltar' }}/>
         <Stack.Screen name="CreateCategory" component={CreateCategoryScreen} options={{ headerShown: true,title: 'Criar Categoria',headerBackTitle: 'Voltar'}} />
-        <Stack.Screen name="MetasFinanceiras" component={MetasFinanceirasScreen} options={{ headerShown: true,title: 'Criar Categoria',headerBackTitle: 'Voltar'}} />
+        <Stack.Screen name="MetasFinanceiras" component={MetasFinanceirasScreen} options={{ headerShown: true,title: 'Criar Meta Financeira',headerBackTitle: 'Voltar'}} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
