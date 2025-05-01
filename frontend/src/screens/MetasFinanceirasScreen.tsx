@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, FlatList, Alert, M
 import { apiConfig } from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Calendar } from 'react-native-calendars';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 interface MetaFinanceira {
   id: number;
@@ -203,18 +204,20 @@ export default function MetasFinanceirasScreen() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>{item.titulo}</Text>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>{item.titulo}</Text>
+              <View style={styles.iconContainer}>
+                <TouchableOpacity onPress={() => handleEdit(item)}>
+                  <Icon name="edit" size={20} color="#1461de" style={styles.icon} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleDelete(item.id)}>
+                  <Icon name="trash" size={20} color="#FF6347" style={styles.icon} />
+                </TouchableOpacity>
+              </View>
+            </View>
             <Text>Valor da Meta: R$ {item.valor_meta}</Text>
             <Text>Início: {formatDateDisplay(item.data_inicio)}</Text>
             <Text>Fim: {formatDateDisplay(item.data_fim)}</Text>
-            <View style={styles.cardActions}>
-              <TouchableOpacity style={styles.editButton} onPress={() => handleEdit(item)}>
-                <Text style={styles.buttonText}>Editar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item.id)}>
-                <Text style={styles.buttonText}>Excluir</Text>
-              </TouchableOpacity>
-            </View>
           </View>
         )}
         ListEmptyComponent={<Text style={styles.emptyText}>Nenhuma meta financeira encontrada.</Text>}
@@ -259,7 +262,13 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: 'white', padding: 15, borderRadius: 8, marginBottom: 15, elevation: 3,
   },
-  cardTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 5 },
+  cardHeader: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5,
+  },
+  cardTitle: { fontSize: 18, fontWeight: 'bold' },
+  iconContainer: {
+    flexDirection: 'row', gap: 10,
+  },
   cardActions: {
     flexDirection: 'row', marginTop: 10, justifyContent: 'space-between',
   },
@@ -275,5 +284,8 @@ const styles = StyleSheet.create({
   },
   calendarBox: {
     backgroundColor: 'white', borderRadius: 10, padding: 20, width: '90%',
+  },
+  icon: {
+    marginLeft: 10,
   },
 });
