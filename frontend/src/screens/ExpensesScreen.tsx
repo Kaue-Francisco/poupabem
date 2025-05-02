@@ -73,7 +73,6 @@ export default function ExpensesScreen() {
 
       setFormData({ description: '', amount: '', category: '' });
       await fetchData();
-      Alert.alert('Sucesso', 'Despesa adicionada com sucesso');
     } catch (error) {
       console.error('Erro ao criar despesa:', error);
       Alert.alert('Erro', error instanceof Error ? error.message : 'Ocorreu um erro ao adicionar a despesa');

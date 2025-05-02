@@ -34,6 +34,15 @@ class DespesaService:
             )
             self.db_conn.session.add(despesa)
             self.db_conn.session.commit()
+
+            categoria = self.db_conn.session.query(Categoria).filter_by(id=categoria_id).first()
+            todas_despesas = self.get_despesas_by_categoria(categoria_id=categoria_id)
+            total_despesa = sum(d['valor'] for d in todas_despesas['despesas'])
+            limite_categoria = self.db_conn.session.query(Categoria).filter_by(id=categoria_id).first().limite_gasto
+            
+            if total_despesa >= limite_categoria:
+                return {'limite': True, 'message': f'O limite de {limite_categoria} foi atingido para a categoria {categoria.nome}.'}
+            
         except Exception as e:
             print(f"Error creating despesa: {e}")
             return {'error': str(e)}

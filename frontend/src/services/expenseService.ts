@@ -2,6 +2,7 @@ import { apiConfig } from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 import { Category, DecodedToken, Expense } from '../types/expense';
+import * as Notifications from 'expo-notifications'
 
 export class ExpenseService {
   private static async getToken(): Promise<string> {
@@ -15,7 +16,7 @@ export class ExpenseService {
   private static async getUserId(): Promise<number> {
     const token = await this.getToken();
     const decodedToken = jwtDecode(token) as DecodedToken;
-    
+
     if (!decodedToken || !decodedToken.id) {
       throw new Error('Token não contém informações válidas');
     }
@@ -75,8 +76,7 @@ export class ExpenseService {
       };
     });
 
-    // Ordenar por data de criação (mais recentes primeiro)
-    return formattedExpenses.sort((a: Expense, b: Expense) => 
+    return formattedExpenses.sort((a: Expense, b: Expense) =>
       new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime()
     );
   }
@@ -84,7 +84,7 @@ export class ExpenseService {
   static async createExpense(expenseData: { categoria_id: number; valor: number; data: string; descricao: string }): Promise<void> {
     const token = await this.getToken();
     const userId = await this.getUserId();
-
+  
     const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.criarDespesa}`, {
       method: 'POST',
       headers: {
@@ -96,11 +96,38 @@ export class ExpenseService {
         ...expenseData,
       }),
     });
+  
+    const data = await response.json();
+  
+    if (data.limite) {
+      ExpenseService.handleCallNotification(data.message);
+    }
 
     if (!response.ok) {
-      const data = await response.json();
       throw new Error(data.message || 'Não foi possível adicionar a despesa');
     }
+  }
+
+  static async handleCallNotification(message: string): Promise<void> {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+  
+    if (finalStatus !== 'granted') {
+      return;
+    }
+  
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Limite Excedido',
+        body: message,
+      },
+      trigger: null,
+    });
   }
 
   static async deleteExpense(expenseId: string): Promise<void> {
@@ -118,4 +145,4 @@ export class ExpenseService {
       throw new Error(data.message || 'Não foi possível deletar a despesa');
     }
   }
-} 
+}

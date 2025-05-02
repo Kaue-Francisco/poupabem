@@ -13,6 +13,15 @@ import IncomeScreen from './src/screens/IncomeScreen';
 import CategoriesScreen from './src/screens/CategoriesScreen';
 import CreateCategoryScreen from './src/screens/CreateCategoryScreen';
 import MetasFinanceirasScreen from './src/screens/MetasFinanceirasScreen';
+import * as Notifications from 'expo-notifications'
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
