@@ -40,7 +40,7 @@ class DespesaController:
         )
 
         if 'limite' in response and response['limite']:
-            return jsonify({'message': response['message'], 'limite': True}), 200
+            return jsonify({'title': response['title'], 'message': response['message'], 'limite': True}), 200
 
         # Retorna a resposta
         if 'error' in response:

@@ -39,9 +39,12 @@ class DespesaService:
             todas_despesas = self.get_despesas_by_categoria(categoria_id=categoria_id)
             total_despesa = sum(d['valor'] for d in todas_despesas['despesas'])
             limite_categoria = self.db_conn.session.query(Categoria).filter_by(id=categoria_id).first().limite_gasto
-            
+            quase_limite = float(limite_categoria) * 0.9
+
             if total_despesa >= limite_categoria:
-                return {'limite': True, 'message': f'O limite de {limite_categoria} foi atingido para a categoria {categoria.nome}.'}
+                return {'limite': True, 'title': 'Limite Excedido', 'message': f'O limite de {limite_categoria} foi atingido para a categoria {categoria.nome}.'}
+            elif total_despesa >= quase_limite:
+                return {'limite': True, 'title': 'Você está proximo do seu Limite', 'message': f'Você está quase atingindo o limite de {limite_categoria} para a categoria {categoria.nome}.'}
             
         except Exception as e:
             print(f"Error creating despesa: {e}")

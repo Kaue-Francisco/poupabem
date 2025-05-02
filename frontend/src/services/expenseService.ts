@@ -100,7 +100,8 @@ export class ExpenseService {
     const data = await response.json();
   
     if (data.limite) {
-      ExpenseService.handleCallNotification(data.message);
+      console.log(data);
+      ExpenseService.handleCallNotification(data.message, data.title);
     }
 
     if (!response.ok) {
@@ -108,7 +109,7 @@ export class ExpenseService {
     }
   }
 
-  static async handleCallNotification(message: string): Promise<void> {
+  static async handleCallNotification(message: string, title: string): Promise<void> {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
   
     let finalStatus = existingStatus;
@@ -123,7 +124,7 @@ export class ExpenseService {
   
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: 'Limite Excedido',
+        title: title,
         body: message,
       },
       trigger: null,
