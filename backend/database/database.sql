@@ -9,6 +9,16 @@ ALTER TABLE
     "users" ADD PRIMARY KEY("id");
 ALTER TABLE
     "users" ADD CONSTRAINT "users_email_unique" UNIQUE("email");
+CREATE TABLE "alert"(
+    "id" SERIAL NOT NULL,
+    "usuario_id" SERIAL NOT NULL,
+    "titulo" VARCHAR(255) NOT NULL,
+    "descricao" TEXT NOT NULL,
+    "data_alerta" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "criado_em" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
+);
+ALTER TABLE
+    "alert" ADD PRIMARY KEY("id");
 CREATE TABLE "categoria"(
     "id" SERIAL NOT NULL,
     "usuario_id" SERIAL NOT NULL,
@@ -78,3 +88,5 @@ ALTER TABLE
     "categoria" ADD CONSTRAINT "categoria_usuario_id_foreign" FOREIGN KEY("usuario_id") REFERENCES "users"("id");
 ALTER TABLE 
     "meta_financeira" ADD CONSTRAINT "meta_financeira_usuario_id_foreign" FOREIGN KEY ("usuario_id") REFERENCES "users" ("id");
+ALTER TABLE
+    "alert" ADD CONSTRAINT "alert_usuario_id_foreign" FOREIGN KEY("usuario_id") REFERENCES "users"("id");

@@ -6,6 +6,7 @@ import { RootStackParamList } from '../types/navigation';
 import { apiConfig } from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -33,6 +34,9 @@ export default function HomeScreen() {
     navigation.navigate('MetasFinanceiras');
   };
 
+  const handleAlert = () => {
+    navigation.navigate('Alert');
+  }
 
   const fetchReceitas = async (token: string, userId: number) => {
     try {
@@ -108,9 +112,10 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>PoupaBem</Text>
-      </View>
+    <View style={styles.header}>
+      <Text style={styles.headerTitle}>PoupaBem</Text>
+      <Icon name="bell" size={20} color="#fff" style={styles.headerIcon} onPress={handleAlert}/>
+    </View>
 
       <View style={styles.summaryContainer}>
         <View style={styles.summaryItem}>
@@ -180,6 +185,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between', // Garante que o texto e o ícone fiquem nos extremos
     backgroundColor: '#3333fd',
     padding: 20,
     paddingTop: 40,
@@ -189,6 +197,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
+    flex: 1, // Permite que o texto ocupe o espaço central
+  },
+  headerIcon: {
+    marginLeft: 'auto', // Garante que o ícone fique no canto direito
   },
   summaryContainer: {
     flexDirection: 'row',

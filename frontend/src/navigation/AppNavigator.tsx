@@ -9,6 +9,7 @@ import ExpensesScreen from '../screens/ExpensesScreen';
 import IncomeScreen from '../screens/IncomeScreen';
 import { RootStackParamList } from '../types/navigation';
 import MetasFinanceirasScreen from '../screens/MetasFinanceirasScreen';
+import AlertScreen from '../screens/AlertScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -61,6 +62,11 @@ export default function AppNavigator() {
           name="MetasFinanceiras" 
           component={MetasFinanceirasScreen} 
           options={{ title: 'Receitas' }}
+        />
+        <Stack.Screen
+          name="Alert"
+          component={AlertScreen}
+          options={{ title: 'Alert' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

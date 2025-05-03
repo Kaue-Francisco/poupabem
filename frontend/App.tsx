@@ -14,12 +14,15 @@ import CategoriesScreen from './src/screens/CategoriesScreen';
 import CreateCategoryScreen from './src/screens/CreateCategoryScreen';
 import MetasFinanceirasScreen from './src/screens/MetasFinanceirasScreen';
 import * as Notifications from 'expo-notifications'
+import AlertScreen from './src/screens/AlertScreen';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -39,6 +42,7 @@ export default function App() {
         <Stack.Screen name="Income" component={IncomeScreen} options={{ headerShown: true, title: 'Adicionar Receitas', headerBackTitle: 'Voltar' }}/>
         <Stack.Screen name="CreateCategory" component={CreateCategoryScreen} options={{ headerShown: true,title: 'Criar Categoria',headerBackTitle: 'Voltar'}} />
         <Stack.Screen name="MetasFinanceiras" component={MetasFinanceirasScreen} options={{ headerShown: true,title: 'Criar Meta Financeira',headerBackTitle: 'Voltar'}} />
+        <Stack.Screen name="Alert" component={AlertScreen} options={{ headerShown: true,title: 'Alertas',headerBackTitle: 'Voltar'}}/>
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
