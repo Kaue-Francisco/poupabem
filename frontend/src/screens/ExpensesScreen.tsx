@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, Alert, Text, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, FlatList, Alert, Text, TouchableOpacity, Image } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { ExpenseForm } from '../components/ExpenseForm';
 import { ExpenseItem } from '../components/ExpenseItem';
 import { ExpenseService } from '../services/expenseService';
@@ -9,6 +10,7 @@ export default function ExpensesScreen() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
@@ -106,6 +108,25 @@ export default function ExpensesScreen() {
     );
   };
 
+  const handleOpenCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permissão negada', 'É necessário permitir o acesso à câmera.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ExpenseForm
@@ -119,6 +140,17 @@ export default function ExpensesScreen() {
         onCategoryChange={(value) => setFormData({ ...formData, category: value })}
         onSubmit={handleAddExpense}
       />
+
+      <TouchableOpacity style={styles.cameraButton} onPress={handleOpenCamera}>
+        <Text style={styles.cameraButtonText}>Abrir Câmera</Text>
+      </TouchableOpacity>
+
+      {image && (
+        <Image
+          source={{ uri: image }}
+          style={styles.previewImage}
+        />
+      )}
 
       <FlatList
         data={expenses}
@@ -159,5 +191,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#7F8C8D',
     textAlign: 'center',
+  },
+  cameraButton: {
+    backgroundColor: '#3498db',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  cameraButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  previewImage: {
+    width: 200,
+    height: 200,
+    alignSelf: 'center',
+    marginVertical: 10,
+    borderRadius: 8,
   },
 });
