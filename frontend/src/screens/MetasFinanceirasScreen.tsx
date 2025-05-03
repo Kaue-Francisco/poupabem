@@ -143,7 +143,8 @@ export default function MetasFinanceirasScreen() {
 
   const formatDateDisplay = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
+    const adjustedDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+    return adjustedDate.toLocaleDateString('pt-BR');
   };
 
   const formatDateInput = (dateString: string) => {
