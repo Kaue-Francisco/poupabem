@@ -45,5 +45,12 @@ export const apiConfig = {
     criarMeta: '/meta_financeira/create',
     deletarMeta: (metaId: number) => `/meta_financeira/delete/${metaId}`,
     atualizarMeta: `/meta_financeira/update/`,
+
+    // Alertas
+    criarAlerta: '/alert/create',
+    verificarAlerta: (usuarioId: number) => `/alert/${usuarioId}`,
+    atualizarAlerta: '/alert/update',
+    deletarAlerta: (alertaId: number) => `/alert/delete/${alertaId}`,
+    listarAlertas: '/alert/all',
   },
 };
