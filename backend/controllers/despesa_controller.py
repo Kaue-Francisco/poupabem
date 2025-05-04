@@ -94,6 +94,19 @@ class DespesaController:
         return jsonify(response), 200
     
     ################################################################
+    def get_dicas_despesas(self, usuario_id: str) -> jsonify:
+        """ Método para buscar dicas de despesas de um usuário """
+        
+        # Chama o método para buscar as dicas de despesas
+        response = despesa_service.get_dicas_despesas(usuario_id=usuario_id)
+
+        # Retorna a resposta
+        if 'error' in response:
+            return jsonify({'message': response['error']}), 400
+
+        return jsonify(response), 200
+    
+    ################################################################
     def get_categorias_despesas(self, usuario_id: str) -> jsonify:
         """ Método para buscar categorias de despesas de um usuário """
         

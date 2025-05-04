@@ -17,6 +17,7 @@ export default function HomeScreen() {
   const [despesas, setDespesas] = useState(0);
   const [showReceitasTooltip, setShowReceitasTooltip] = useState(false);
   const [showDespesasTooltip, setShowDespesasTooltip] = useState(false);
+  const [dicas, setDicas] = useState<{ [key: string]: number }>({});
 
   const handleCategorias = () => {
     navigation.navigate('Categories');
@@ -78,6 +79,24 @@ export default function HomeScreen() {
     }
   };
 
+  const fetchDicas = async (token: string, userId: number) => {
+    try {
+      const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.dicas(userId)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      if (data.status) {
+        setDicas(data.dicas);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar dicas:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -90,6 +109,7 @@ export default function HomeScreen() {
         const userId = decodedToken.id;
         await fetchReceitas(token, userId);
         await fetchDespesas(token, userId);
+        await fetchDicas(token, userId);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -153,6 +173,22 @@ export default function HomeScreen() {
           )}
         </View>
       </View>
+
+      {Object.keys(dicas).length > 0 && (
+        <View style={styles.dicasContainer}>
+          <Text style={styles.dicasTitle}>Dicas</Text>
+          {Object.entries(dicas).map(([data, quantidade]) => (
+            <View key={data} style={styles.dicaItem}>
+              <Text style={styles.dicaText}>
+                Você registrou {quantidade} despesas em {new Date(data).toLocaleDateString('pt-BR')}
+              </Text>
+              <Text style={styles.dicaAviso}>
+                {quantidade > 3 ? 'Cuidado! Você está gastando muito hoje.' : 'Continue controlando seus gastos!'}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
 
       <View style={styles.menuContainer}>
         <TouchableOpacity style={styles.menuItem} onPress={handleCategorias}>
@@ -278,5 +314,38 @@ const styles = StyleSheet.create({
   menuItemDescription: {
     fontSize: 14,
     color: '#666',
+  },
+  dicasContainer: {
+    backgroundColor: '#fff',
+    margin: 15,
+    padding: 15,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  dicasTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#007AFF',
+    marginBottom: 10,
+  },
+  dicaItem: {
+    marginBottom: 10,
+  },
+  dicaText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 5,
+  },
+  dicaAviso: {
+    fontSize: 14,
+    color: '#FF3B30',
+    fontWeight: 'bold',
   },
 });

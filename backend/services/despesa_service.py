@@ -92,6 +92,27 @@ class DespesaService:
             return {'status': True, 'total': total}
         except Exception as e:
             return {'error': str(e)}
+        
+    def get_dicas_despesas(self, usuario_id: str) -> dict:
+        """ Método que verifica se o usuário está adicionando muitas despesas em um mesmo dia """
+
+        try:
+            # Busca todas as despesas associadas ao usuário
+            despesas = self.db_conn.session.query(Despesa).filter_by(usuario_id=usuario_id).all()
+            dicas = {}
+
+            for despesa in despesas:
+                if despesa.data not in dicas:
+                    dicas[despesa.data] = 1
+                else:
+                    dicas[despesa.data] += 1
+
+            # Verifica se o usuário adicionou mais de 3 despesas em um mesmo dia
+            dicas = {data.isoformat(): count for data, count in dicas.items() if count > 3}
+
+            return {'status': True, 'dicas': dicas}
+        except Exception as e:
+            return {'error': str(e)}
     
     ################################################################
     def get_categorias_despesas(self, usuario_id: str) -> dict:

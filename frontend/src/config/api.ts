@@ -39,6 +39,7 @@ export const apiConfig = {
     deletarDespesa: (despesaId: number) => `/despesa/delete/${despesaId}`,
     listarDespesas: (id: number) => `/despesa/${id}`,
     totalDespesa: (id: number) => `/despesa/total/${id}`,
+    dicas: (usuarioId: number) => `/despesa/dicas/${usuarioId}`,
     
     // Metas Financeiras
     listarMetas: (metaId: number) => `/meta_financeira/${metaId}`,
