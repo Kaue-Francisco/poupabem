@@ -48,7 +48,7 @@ class AlertController:
         
         # Chama o método para verificar os alertas
         response = alert_service.is_alert(usuario_id=usuario_id)
-        
+        print(response)
         # Retorna a resposta
         if 'error' in response:
             return jsonify({'message': response['error']}), 400

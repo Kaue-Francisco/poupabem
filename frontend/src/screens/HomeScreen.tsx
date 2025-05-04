@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { apiConfig } from '../config/api';
@@ -18,6 +18,7 @@ export default function HomeScreen() {
   const [showReceitasTooltip, setShowReceitasTooltip] = useState(false);
   const [showDespesasTooltip, setShowDespesasTooltip] = useState(false);
   const [dicas, setDicas] = useState<{ [key: string]: number }>({});
+  const [hasTodayAlerts, setHasTodayAlerts] = useState(false);
 
   const handleCategorias = () => {
     navigation.navigate('Categories');
@@ -97,6 +98,22 @@ export default function HomeScreen() {
     }
   };
 
+  const checkTodayAlerts = async (token: string, userId: number) => {
+    try {
+      const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.verificarAlerta(userId)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      setHasTodayAlerts(data.alertas_disparados && data.alertas_disparados.length > 0);
+    } catch (error) {
+      console.error('Erro ao verificar alertas:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -110,6 +127,7 @@ export default function HomeScreen() {
         await fetchReceitas(token, userId);
         await fetchDespesas(token, userId);
         await fetchDicas(token, userId);
+        await checkTodayAlerts(token, userId);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -134,7 +152,17 @@ export default function HomeScreen() {
     <ScrollView style={styles.container}>
     <View style={styles.header}>
       <Text style={styles.headerTitle}>PoupaBem</Text>
-      <Icon name="bell" size={20} color="#fff" style={styles.headerIcon} onPress={handleAlert}/>
+      <TouchableOpacity onPress={handleAlert}>
+        <View style={styles.bellContainer}>
+          <Icon 
+            name="bell" 
+            size={20} 
+            color={hasTodayAlerts ? '#FF9800' : '#fff'} 
+            style={styles.headerIcon}
+          />
+          {hasTodayAlerts && <View style={styles.bellBadge} />}
+        </View>
+      </TouchableOpacity>
     </View>
 
       <View style={styles.summaryContainer}>
@@ -347,5 +375,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FF3B30',
     fontWeight: 'bold',
+  },
+  bellContainer: {
+    position: 'relative',
+  },
+  bellBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FF3B30',
   },
 });

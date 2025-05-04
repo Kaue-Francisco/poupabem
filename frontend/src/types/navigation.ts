@@ -10,4 +10,5 @@ export type RootStackParamList = {
   CreateCategory: undefined;
   MetasFinanceiras: undefined;
   Alert: undefined;
+  CreateAlert: { alertToEdit?: Alerta };
 };

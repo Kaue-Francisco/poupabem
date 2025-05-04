@@ -50,10 +50,6 @@ export default function LoginScreen() {
     }
   };
 
-  const handleForgotPassword = () => {
-    Alert.alert('Info', 'Funcionalidade em desenvolvimento');
-  };
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
@@ -74,10 +70,6 @@ export default function LoginScreen() {
         onChangeText={setSenha}
         secureTextEntry
       />
-      
-      <TouchableOpacity onPress={handleForgotPassword}>
-        <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
-      </TouchableOpacity>
       
       <View style={styles.bottomButtons}>
         <TouchableOpacity 
