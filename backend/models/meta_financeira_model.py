@@ -18,4 +18,7 @@ class MetaFinanceira(db.Model):
     valor_meta = db.Column(db.Numeric(10, 2), nullable=False)
     data_inicio = db.Column(db.DateTime, nullable=False)
     data_fim = db.Column(db.DateTime, nullable=False)
+    tipo = db.Column(db.String(20), nullable=False, default='geral')  # 'geral', 'categoria', 'receita', 'despesa'
+    categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'), nullable=True)
     criado_em = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    atualizado_em = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)

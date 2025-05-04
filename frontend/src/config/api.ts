@@ -45,7 +45,7 @@ export const apiConfig = {
     listarMetas: (metaId: number) => `/meta_financeira/${metaId}`,
     criarMeta: '/meta_financeira/create',
     deletarMeta: (metaId: number) => `/meta_financeira/delete/${metaId}`,
-    atualizarMeta: `/meta_financeira/update/`,
+    atualizarMeta: '/meta_financeira/update',
 
     // Alertas
     criarAlerta: '/alert/create',

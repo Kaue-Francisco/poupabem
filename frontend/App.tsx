@@ -16,6 +16,7 @@ import MetasFinanceirasScreen from './src/screens/MetasFinanceirasScreen';
 import * as Notifications from 'expo-notifications'
 import AlertScreen from './src/screens/AlertScreen';
 import CreateAlertScreen from './src/screens/CreateAlertScreen';
+import CreateMetaScreen from './src/screens/CreateMetaScreen';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -45,6 +46,7 @@ export default function App() {
         <Stack.Screen name="MetasFinanceiras" component={MetasFinanceirasScreen} options={{ headerShown: true,title: 'Criar Meta Financeira',headerBackTitle: 'Voltar'}} />
         <Stack.Screen name="Alert" component={AlertScreen} options={{ headerShown: true,title: 'Alertas',headerBackTitle: 'Voltar'}}/>
         <Stack.Screen name="CreateAlert" component={CreateAlertScreen} options={{ headerShown: true,title: 'Criar Alerta',headerBackTitle: 'Voltar'}}/>
+        <Stack.Screen name="CreateMeta" component={CreateMetaScreen} options={{ headerShown: true,title: 'Criar Meta Financeira',headerBackTitle: 'Voltar'}}/>
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

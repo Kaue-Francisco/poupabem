@@ -43,7 +43,7 @@ def delete_meta(meta_id: str) -> jsonify:
 
     return response
 
-@meta_financeira_routes.route('/update/', methods=['PUT'])
+@meta_financeira_routes.route('/update', methods=['PUT'])
 @token_authorization
 def update_meta() -> jsonify:
     """ Método para atualizar uma meta financeira """

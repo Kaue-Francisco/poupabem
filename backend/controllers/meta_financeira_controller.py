@@ -57,11 +57,13 @@ class MetaFinanceiraController:
         valor_meta = data.get('valor_meta')
         data_inicio = data.get('data_inicio')
         data_fim = data.get('data_fim')
+        tipo = data.get('tipo', 'geral')
+        categoria_id = data.get('categoria_id')
         valor_atual = self.pegar_valor_atual(usuario_id)
 
         # Valida os dados obrigatórios
         if not all([usuario_id, titulo, valor_meta, data_inicio, data_fim]):
-            return jsonify({'message': 'Usuário, título, valor atual, valor meta, data de início e data de fim são campos obrigatórios.'}), 400
+            return jsonify({'message': 'Usuário, título, valor meta, data de início e data de fim são campos obrigatórios.'}), 400
 
         # Chama o método para criar a meta financeira
         response = meta_financeira_service.create_meta_financeira(
@@ -70,7 +72,9 @@ class MetaFinanceiraController:
             valor_atual=valor_atual,
             valor_meta=valor_meta,
             data_inicio=data_inicio,
-            data_fim=data_fim
+            data_fim=data_fim,
+            tipo=tipo,
+            categoria_id=categoria_id
         )
 
         # Retorna a resposta
@@ -85,6 +89,14 @@ class MetaFinanceiraController:
 
         # Chama o método para buscar as metas
         response = meta_financeira_service.get_metas_by_usuario(usuario_id=usuario_id)
+
+        # Atualiza o valor atual de cada meta
+        if 'metas' in response:
+            for meta in response['metas']:
+                atualizacao = meta_financeira_service.atualizar_valor_atual(meta['id'])
+                if 'valor_atual' in atualizacao:
+                    meta['valor_atual'] = atualizacao['valor_atual']
+                    meta['meta_batida'] = atualizacao['meta_batida']
 
         # Retorna a resposta
         if 'error' in response:
@@ -103,10 +115,12 @@ class MetaFinanceiraController:
         valor_meta = data.get('valor_meta')
         data_inicio = data.get('data_inicio')
         data_fim = data.get('data_fim')
+        tipo = data.get('tipo', 'geral')
+        categoria_id = data.get('categoria_id')
 
         # Valida os dados obrigatórios
-        if not all([usuario_id, titulo, valor_meta, data_inicio, data_fim]):
-            return jsonify({'message': 'Usuário, título, valor meta, data de início e data de fim são campos obrigatórios.'}), 400
+        if not all([meta_id, usuario_id, titulo, valor_meta, data_inicio, data_fim]):
+            return jsonify({'message': 'ID da meta, usuário, título, valor meta, data de início e data de fim são campos obrigatórios.'}), 400
 
         # Chama o método para atualizar a meta
         response = meta_financeira_service.update_meta(
@@ -115,7 +129,9 @@ class MetaFinanceiraController:
             titulo=titulo,
             valor_meta=valor_meta,
             data_inicio=data_inicio,
-            data_fim=data_fim
+            data_fim=data_fim,
+            tipo=tipo,
+            categoria_id=categoria_id
         )
 
         # Retorna a resposta

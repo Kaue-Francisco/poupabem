@@ -1,14 +1,18 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types/navigation';
+import SplashScreen from '../screens/SplashScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import HomeScreen from '../screens/HomeScreen';
 import CategoriesScreen from '../screens/CategoriesScreen';
 import ExpensesScreen from '../screens/ExpensesScreen';
 import IncomeScreen from '../screens/IncomeScreen';
-import { RootStackParamList } from '../types/navigation';
+import WelcomeScreen from '../screens/WelcomeScreen';
+import CreateCategoryScreen from '../screens/CreateCategoryScreen';
 import MetasFinanceirasScreen from '../screens/MetasFinanceirasScreen';
+import CreateMetaScreen from '../screens/CreateMetaScreen';
 import AlertScreen from '../screens/AlertScreen';
 import CreateAlertScreen from '../screens/CreateAlertScreen';
 
@@ -63,6 +67,11 @@ export default function AppNavigator() {
           name="MetasFinanceiras" 
           component={MetasFinanceirasScreen} 
           options={{ title: 'Metas Financeiras' }}
+        />
+        <Stack.Screen
+          name="CreateMeta"
+          component={CreateMetaScreen}
+          options={{ title: 'Criar Meta Financeira' }}
         />
         <Stack.Screen
           name="Alert"

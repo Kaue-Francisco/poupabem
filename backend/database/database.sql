@@ -63,10 +63,16 @@ CREATE TABLE "meta_financeira" (
     "valor_meta" DECIMAL(10, 2) NOT NULL,
     "data_inicio" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
     "data_fim" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "criado_em" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "tipo" VARCHAR(20) NOT NULL DEFAULT 'geral',
+    "categoria_id" INTEGER,
+    "criado_em" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "atualizado_em" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE "meta_financeira" ADD PRIMARY KEY ("id");
+ALTER TABLE "meta_financeira" ADD CONSTRAINT "meta_financeira_usuario_id_foreign" FOREIGN KEY ("usuario_id") REFERENCES "users" ("id");
+ALTER TABLE "meta_financeira" ADD CONSTRAINT "meta_financeira_categoria_id_foreign" FOREIGN KEY ("categoria_id") REFERENCES "categoria" ("id");
+ALTER TABLE "meta_financeira" ADD CONSTRAINT "meta_financeira_tipo_check" CHECK ("tipo" IN ('geral', 'categoria', 'receita', 'despesa'));
 CREATE TABLE "orcamento"(
     "id" SERIAL NOT NULL,
     "usuario_id" SERIAL NOT NULL,
@@ -87,7 +93,5 @@ ALTER TABLE
     "receita" ADD CONSTRAINT "receita_categoria_id_foreign" FOREIGN KEY("categoria_id") REFERENCES "categoria"("id");
 ALTER TABLE
     "categoria" ADD CONSTRAINT "categoria_usuario_id_foreign" FOREIGN KEY("usuario_id") REFERENCES "users"("id");
-ALTER TABLE 
-    "meta_financeira" ADD CONSTRAINT "meta_financeira_usuario_id_foreign" FOREIGN KEY ("usuario_id") REFERENCES "users" ("id");
 ALTER TABLE
     "alert" ADD CONSTRAINT "alert_usuario_id_foreign" FOREIGN KEY("usuario_id") REFERENCES "users"("id");
