@@ -19,4 +19,5 @@ class Despesa(db.Model):
     valor = db.Column(db.Numeric(8, 2), nullable=False)
     data = db.Column(db.Date, nullable=False)
     descricao = db.Column(db.Text, nullable=False)
+    imagem = db.Column(db.String(255), nullable=True)
     criado_em = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

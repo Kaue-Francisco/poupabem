@@ -25,6 +25,8 @@ class DespesaController:
         valor = data.get('valor')
         data_despesa = data.get('data')
         descricao = data.get('descricao')
+        if 'image' in data:
+            image = data.get('image')
 
         # Valida os dados obrigatórios
         if not all([usuario_id, categoria_id, valor, data_despesa, descricao]):
@@ -36,7 +38,8 @@ class DespesaController:
             categoria_id=categoria_id,
             valor=valor,
             data=data_despesa,
-            descricao=descricao
+            descricao=descricao,
+            image=image if 'image' in data else None
         )
 
         if 'limite' in response and response['limite']:

@@ -39,6 +39,7 @@ CREATE TABLE "despesa"(
     "valor" DECIMAL(8, 2) NOT NULL,
     "data" DATE NOT NULL,
     "descricao" TEXT NOT NULL,
+    "imagem" TEXT,
     "criado_em" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
 ALTER TABLE

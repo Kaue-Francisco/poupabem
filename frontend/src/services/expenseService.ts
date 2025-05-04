@@ -72,6 +72,7 @@ export class ExpenseService {
         amount: expense.valor,
         date: expense.data,
         category: categoriaEncontrada ? categoriaEncontrada.nome : 'Sem Categoria',
+        image: expense.image,
         criado_em: expense.criado_em,
       };
     });
@@ -81,7 +82,7 @@ export class ExpenseService {
     );
   }
 
-  static async createExpense(expenseData: { categoria_id: number; valor: number; data: string; descricao: string }): Promise<void> {
+  static async createExpense(expenseData: { categoria_id: number; valor: number; data: string; descricao: string; image: string }): Promise<void> {
     const token = await this.getToken();
     const userId = await this.getUserId();
   
@@ -100,7 +101,6 @@ export class ExpenseService {
     const data = await response.json();
   
     if (data.limite) {
-      console.log(data);
       ExpenseService.handleCallNotification(data.message, data.title);
     }
 

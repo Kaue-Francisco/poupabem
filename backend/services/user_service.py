@@ -44,7 +44,6 @@ class UserService:
         """ Método para registro de usuário """
 
         try:
-            print(name, email, password)
             user = User(nome=name, email=email, senha=password)
             self.db_conn.session.add(user)
             self.db_conn.session.commit()

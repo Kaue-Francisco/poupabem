@@ -4,6 +4,7 @@ export type Expense = {
   amount: number;
   date: string;
   category: string;
+  image: string;
   criado_em: string;
 };
 

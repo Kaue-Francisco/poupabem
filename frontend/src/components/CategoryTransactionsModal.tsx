@@ -66,7 +66,6 @@ export default function CategoryTransactionsModal({
       });
   
       if (!response.ok) {
-        console.log(response)
         console.error('Erro na resposta da API:', response.status);
         return;
       }

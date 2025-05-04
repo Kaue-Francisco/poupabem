@@ -21,7 +21,7 @@ class DatabaseConnect:
         """ Inicializa a aplicação """
 
         # Substitua os valores abaixo pelos detalhes do seu banco de dados PostgreSQL
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:root@localhost:5432/poupabem'
+        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:autaza@localhost:5432/poupabem'
         self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         db.init_app(self.app)
 

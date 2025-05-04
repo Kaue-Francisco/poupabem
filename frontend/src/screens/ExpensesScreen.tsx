@@ -1,20 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, Alert, Text, TouchableOpacity, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 import { ExpenseForm } from '../components/ExpenseForm';
 import { ExpenseItem } from '../components/ExpenseItem';
+import { ExpenseDetailModal } from '../components/ExpenseDetailModal';
 import { ExpenseService } from '../services/expenseService';
 import { Category, Expense } from '../types/expense';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function ExpensesScreen() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState<string | null>(null);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
     category: '',
+    image: '',
   });
 
   const fetchData = async () => {
@@ -24,7 +30,7 @@ export default function ExpensesScreen() {
         ExpenseService.getCategories(),
         ExpenseService.getExpenses(),
       ]);
-
+      
       setCategories(categoriesData);
       setExpenses(expensesData);
     } catch (error) {
@@ -38,8 +44,33 @@ export default function ExpensesScreen() {
     fetchData();
   }, []);
 
+  const handleUploadImage = async (imageUri: string) => {
+    try {
+      // Criar diretório se não existir
+      const directory = `${FileSystem.documentDirectory}images`;
+      const dirInfo = await FileSystem.getInfoAsync(directory);
+      if (!dirInfo.exists) {
+        await FileSystem.makeDirectoryAsync(directory, { intermediates: true });
+      }
+
+      // Gerar nome único para o arquivo
+      const fileName = `image_${Date.now()}.jpg`;
+      const newPath = `${directory}/${fileName}`;
+
+      // Copiar a imagem para o diretório local
+      await FileSystem.copyAsync({
+        from: imageUri,
+        to: newPath
+      });
+
+      return newPath;
+    } catch (error) {
+      console.error('Erro ao salvar imagem localmente:', error);
+      throw error;
+    }
+  };
+
   const handleAddExpense = async () => {
-    
     if (!formData.description.trim() || !formData.amount.trim() || !formData.category) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos');
       return;
@@ -66,14 +97,21 @@ export default function ExpensesScreen() {
     }
 
     try {
+      let imagePath = '';
+      if (formData.image) {
+        imagePath = await handleUploadImage(formData.image);
+      }
+
       await ExpenseService.createExpense({
         categoria_id: parseInt(formData.category),
         valor: parseFloat(formData.amount),
         data: new Date().toISOString().split('T')[0],
         descricao: formData.description,
+        image: imagePath,
       });
 
-      setFormData({ description: '', amount: '', category: '' });
+      setFormData({ description: '', amount: '', category: '', image: '' });
+      setImage(null);
       await fetchData();
     } catch (error) {
       console.error('Erro ao criar despesa:', error);
@@ -108,29 +146,16 @@ export default function ExpensesScreen() {
     );
   };
 
-  const handleOpenCamera = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permissão negada', 'É necessário permitir o acesso à câmera.');
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImage(result.assets[0].uri);
-    }
+  const handleExpensePress = (expense: Expense) => {
+    setSelectedExpense(expense);
+    setModalVisible(true);
   };
 
   return (
     <View style={styles.container}>
       <ExpenseForm
         description={formData.description}
+        imageUrl={formData.image}
         amount={formData.amount}
         category={formData.category}
         categories={categories}
@@ -138,24 +163,17 @@ export default function ExpensesScreen() {
         onDescriptionChange={(text) => setFormData({ ...formData, description: text })}
         onAmountChange={(text) => setFormData({ ...formData, amount: text })}
         onCategoryChange={(value) => setFormData({ ...formData, category: value })}
+        onImageChange={(uri) => setFormData({ ...formData, image: uri || '' })}
         onSubmit={handleAddExpense}
       />
-
-      <TouchableOpacity style={styles.cameraButton} onPress={handleOpenCamera}>
-        <Text style={styles.cameraButtonText}>Abrir Câmera</Text>
-      </TouchableOpacity>
-
-      {image && (
-        <Image
-          source={{ uri: image }}
-          style={styles.previewImage}
-        />
-      )}
 
       <FlatList
         data={expenses}
         renderItem={({ item }) => (
-          <TouchableOpacity onLongPress={() => handleDeleteExpense(item.id)}>
+          <TouchableOpacity 
+            onPress={() => handleExpensePress(item)}
+            onLongPress={() => handleDeleteExpense(item.id)}
+          >
             <ExpenseItem expense={item} />
           </TouchableOpacity>
         )}
@@ -166,6 +184,15 @@ export default function ExpensesScreen() {
             <Text style={styles.emptyText}>Nenhuma despesa encontrada</Text>
           </View>
         )}
+      />
+
+      <ExpenseDetailModal
+        visible={modalVisible}
+        onClose={() => {
+          setModalVisible(false);
+          setSelectedExpense(null);
+        }}
+        expense={selectedExpense}
       />
     </View>
   );
