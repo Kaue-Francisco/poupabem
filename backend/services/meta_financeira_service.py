@@ -5,6 +5,7 @@ from models.meta_financeira_model import MetaFinanceira
 from flask_sqlalchemy import SQLAlchemy
 from models.receita_model import Receita
 from models.despesa_model import Despesa
+from models.categoria_model import Categoria
 
 ################################################################################
 # Main
@@ -113,43 +114,59 @@ class MetaFinanceiraService:
     def atualizar_valor_atual(self, meta_id: str) -> dict:
         """Atualiza o valor atual da meta baseado nas transações do período"""
         try:
-            meta = self.db_conn.session.query(MetaFinanceira).filter_by(id=meta_id).first()
-            if not meta:
-                return {'error': 'Meta não encontrada'}
+            # Se meta_id for um dicionário (meta temporária), extrai os dados
+            if isinstance(meta_id, dict):
+                meta_data = meta_id
+                meta_id = meta_data.get('id')
+                usuario_id = int(meta_data.get('usuario_id'))
+                data_inicio = meta_data.get('data_inicio')
+                data_fim = meta_data.get('data_fim')
+                tipo = meta_data.get('tipo')
+                categoria_id = meta_data.get('categoria_id')
+                
+                # Se for uma meta temporária, não precisa buscar no banco
+                if meta_id == 'temp':
+                    meta = type('Meta', (), {
+                        'id': 'temp',
+                        'usuario_id': usuario_id,
+                        'data_inicio': data_inicio,
+                        'data_fim': data_fim,
+                        'tipo': tipo,
+                        'categoria_id': categoria_id
+                    })
+                else:
+                    meta = self.db_conn.session.query(MetaFinanceira).filter_by(id=meta_id).first()
+            else:
+                meta = self.db_conn.session.query(MetaFinanceira).filter_by(id=meta_id).first()
+                if not meta:
+                    return {'error': 'Meta não encontrada'}
+                usuario_id = int(meta.usuario_id)
 
             valor_atual = 0.0
             
             if meta.tipo == 'geral':
-                # Soma todas as receitas e subtrai todas as despesas do período
+                # Para meta geral: receitas - despesas
                 receitas = self.db_conn.session.query(Receita).filter(
-                    Receita.usuario_id == meta.usuario_id,
+                    Receita.usuario_id == usuario_id,
                     Receita.data >= meta.data_inicio,
                     Receita.data <= meta.data_fim
                 ).all()
                 
                 despesas = self.db_conn.session.query(Despesa).filter(
-                    Despesa.usuario_id == meta.usuario_id,
+                    Despesa.usuario_id == usuario_id,
                     Despesa.data >= meta.data_inicio,
                     Despesa.data <= meta.data_fim
                 ).all()
                 
-                valor_atual = sum(r.valor for r in receitas) - sum(d.valor for d in despesas)
+                total_receitas = sum(r.valor for r in receitas)
+                total_despesas = sum(d.valor for d in despesas)
+                valor_atual = total_receitas - total_despesas
                 
-            elif meta.tipo == 'categoria' and meta.categoria_id:
-                # Soma apenas as transações da categoria específica
-                despesas = self.db_conn.session.query(Despesa).filter(
-                    Despesa.usuario_id == meta.usuario_id,
-                    Despesa.categoria_id == meta.categoria_id,
-                    Despesa.data >= meta.data_inicio,
-                    Despesa.data <= meta.data_fim
-                ).all()
-                
-                valor_atual = sum(d.valor for d in despesas)
                 
             elif meta.tipo == 'receita':
-                # Soma apenas as receitas do período
+                # Para meta de receita: apenas receitas
                 receitas = self.db_conn.session.query(Receita).filter(
-                    Receita.usuario_id == meta.usuario_id,
+                    Receita.usuario_id == usuario_id,
                     Receita.data >= meta.data_inicio,
                     Receita.data <= meta.data_fim
                 ).all()
@@ -157,17 +174,46 @@ class MetaFinanceiraService:
                 valor_atual = sum(r.valor for r in receitas)
                 
             elif meta.tipo == 'despesa':
-                # Soma apenas as despesas do período
+                # Para meta de despesa: apenas despesas
                 despesas = self.db_conn.session.query(Despesa).filter(
-                    Despesa.usuario_id == meta.usuario_id,
+                    Despesa.usuario_id == usuario_id,
                     Despesa.data >= meta.data_inicio,
                     Despesa.data <= meta.data_fim
                 ).all()
                 
                 valor_atual = sum(d.valor for d in despesas)
+                
+            elif meta.tipo == 'categoria' and meta.categoria_id:
+                # Verifica se a categoria é de receita ou despesa
+                categoria = self.db_conn.session.query(Categoria).filter_by(id=meta.categoria_id).first()
+                if not categoria:
+                    return {'error': 'Categoria não encontrada'}
 
-            meta.valor_atual = valor_atual
-            self.db_conn.session.commit()
+                if categoria.tipo == 'receita':
+                    # Para categoria de receita: apenas receitas da categoria
+                    receitas = self.db_conn.session.query(Receita).filter(
+                        Receita.usuario_id == usuario_id,
+                        Receita.categoria_id == meta.categoria_id,
+                        Receita.data >= meta.data_inicio,
+                        Receita.data <= meta.data_fim
+                    ).all()
+                    
+                    valor_atual = sum(r.valor for r in receitas)
+                else:
+                    # Para categoria de despesa: apenas despesas da categoria
+                    despesas = self.db_conn.session.query(Despesa).filter(
+                        Despesa.usuario_id == usuario_id,
+                        Despesa.categoria_id == meta.categoria_id,
+                        Despesa.data >= meta.data_inicio,
+                        Despesa.data <= meta.data_fim
+                    ).all()
+                    
+                    valor_atual = sum(d.valor for d in despesas)
+
+            # Se não for uma meta temporária, atualiza no banco
+            if meta_id != 'temp':
+                meta.valor_atual = valor_atual
+                self.db_conn.session.commit()
 
             # Verifica se a meta foi batida
             meta_batida = self.verificar_meta_batida(meta)
@@ -179,12 +225,27 @@ class MetaFinanceiraService:
             }
             
         except Exception as e:
+            print(f"Erro ao atualizar valor atual: {str(e)}")
             return {'error': str(e)}
 
     def verificar_meta_batida(self, meta: MetaFinanceira) -> bool:
         """Verifica se a meta foi batida baseado no tipo"""
-        if meta.tipo in ['geral', 'receita']:
-            return meta.valor_atual >= meta.valor_meta
-        elif meta.tipo in ['categoria', 'despesa']:
-            return meta.valor_atual <= meta.valor_meta
-        return False
+        try:
+            # Calcula o progresso da meta
+            if meta.valor_meta == 0:
+                return False
+                
+            progresso = (meta.valor_atual / meta.valor_meta) * 100
+            
+            # Para metas de despesa e categoria, a meta é batida quando o valor atual é menor ou igual ao valor meta
+            if meta.tipo in ['despesa', 'categoria']:
+                return meta.valor_atual <= meta.valor_meta
+                
+            # Para metas de receita e geral, a meta é batida quando o valor atual é maior ou igual ao valor meta
+            elif meta.tipo in ['receita', 'geral']:
+                return meta.valor_atual >= meta.valor_meta
+                
+            return False
+        except Exception as e:
+            print(f"Erro ao verificar meta batida: {str(e)}")
+            return False

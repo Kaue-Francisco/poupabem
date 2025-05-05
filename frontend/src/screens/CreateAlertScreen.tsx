@@ -43,9 +43,18 @@ export default function CreateAlertScreen() {
         return;
     }
 
-    // Verificar se a data selecionada é anterior ao dia atual
-    const today = new Date().toISOString().split('T')[0]; // Data atual no formato YYYY-MM-DD
-    if (dataAlerta < today) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Zera as horas para comparar apenas a data
+
+    const selectedDate = new Date(dataAlerta);
+    // Ajustar o horário para compensar o fuso horário
+    selectedDate.setMinutes(selectedDate.getMinutes() + selectedDate.getTimezoneOffset());
+    selectedDate.setHours(0, 0, 0, 0);
+
+    console.log('Selected Date:', selectedDate);
+    console.log('Today:', today);
+
+    if (selectedDate < today) {
         Alert.alert('Erro', 'Não é possível criar alertas para dias anteriores');
         return;
     }

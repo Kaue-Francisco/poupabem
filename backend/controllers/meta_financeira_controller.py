@@ -20,32 +20,36 @@ despesa_controller = DespesaController()
 
 class MetaFinanceiraController:
     
-    def pegar_valor_atual(self, usuario_id) -> float:
-        # Obtém a resposta do total de receitas
-        response_receitas, status_code = receita_controller.total_receitas(usuario_id=usuario_id)
-        
-        # Verifica se a resposta foi bem-sucedida
-        if status_code != 200:
-            raise ValueError("Erro ao obter o total de receitas")
-
-        # Extrai o conteúdo JSON da resposta
-        response_data = response_receitas.get_json()  # Converte o conteúdo para um dicionário
-        total_receitas = response_data.get('total', 0)  # Substitua 'total' pela chave correta
-        
-        # Obtém o total de despesas
-        response_despesas, status_code = despesa_controller.total_despesa(usuario_id=usuario_id)
-
-        if status_code != 200:
-            raise ValueError("Erro ao obter o total de despesas")
-        
-        # Extrai o conteúdo JSON da resposta
-        response_data = response_despesas.get_json()
-        total_despesas = response_data.get('total', 0)
-
-        # Calcula o valor atual
-        valor_atual = float(total_receitas) - float(total_despesas)
-        
-        return valor_atual
+    def pegar_valor_atual(self, usuario_id: str, data_inicio: str, data_fim: str, tipo: str, categoria_id: str = None) -> float:
+        """Calcula o valor atual baseado no tipo e período da meta"""
+        try:
+            # Converte o ID do usuário para inteiro
+            usuario_id_int = int(usuario_id)
+            
+            # Cria uma meta temporária para usar o método atualizar_valor_atual
+            meta_temp = {
+                'id': 'temp',
+                'usuario_id': usuario_id_int,
+                'data_inicio': data_inicio,
+                'data_fim': data_fim,
+                'tipo': tipo,
+                'categoria_id': categoria_id
+            }
+            
+            # Usa o método atualizar_valor_atual do serviço
+            response = meta_financeira_service.atualizar_valor_atual(meta_temp)
+            
+            if 'error' in response:
+                raise ValueError(response['error'])
+                
+            return response['valor_atual']
+            
+        except ValueError as e:
+            print(f"Erro ao converter ID do usuário: {str(e)}")
+            return 0.0
+        except Exception as e:
+            print(f"Erro ao calcular valor atual: {str(e)}")
+            return 0.0
 
     ################################################################################
     def create_meta_financeira(self, data: dict) -> jsonify:
@@ -59,7 +63,7 @@ class MetaFinanceiraController:
         data_fim = data.get('data_fim')
         tipo = data.get('tipo', 'geral')
         categoria_id = data.get('categoria_id')
-        valor_atual = self.pegar_valor_atual(usuario_id)
+        valor_atual = self.pegar_valor_atual(usuario_id, data_inicio, data_fim, tipo, categoria_id)
 
         # Valida os dados obrigatórios
         if not all([usuario_id, titulo, valor_meta, data_inicio, data_fim]):
@@ -80,6 +84,13 @@ class MetaFinanceiraController:
         # Retorna a resposta
         if 'error' in response:
             return jsonify({'message': response['error']}), 400
+
+        # Atualiza o valor atual após a criação da meta
+        meta_id = response.get('meta_id')
+        if meta_id:
+            atualizacao = meta_financeira_service.atualizar_valor_atual(meta_id)
+            if 'error' in atualizacao:
+                print(f"Erro ao atualizar valor atual: {atualizacao['error']}")
 
         return jsonify(response), 201
     
@@ -122,6 +133,10 @@ class MetaFinanceiraController:
         if not all([meta_id, usuario_id, titulo, valor_meta, data_inicio, data_fim]):
             return jsonify({'message': 'ID da meta, usuário, título, valor meta, data de início e data de fim são campos obrigatórios.'}), 400
 
+        # Se for meta de categoria, valida a categoria_id
+        if tipo == 'categoria' and not categoria_id:
+            return jsonify({'message': 'Para metas do tipo categoria, é necessário informar a categoria.'}), 400
+
         # Chama o método para atualizar a meta
         response = meta_financeira_service.update_meta(
             meta_id=meta_id,
@@ -138,7 +153,17 @@ class MetaFinanceiraController:
         if 'error' in response:
             return jsonify({'message': response['error']}), 400
 
-        return jsonify(response), 200
+        # Atualiza o valor atual após a atualização da meta
+        atualizacao = meta_financeira_service.atualizar_valor_atual(meta_id)
+        if 'error' in atualizacao:
+            print(f"Erro ao atualizar valor atual: {atualizacao['error']}")
+            return jsonify({'message': atualizacao['error']}), 400
+
+        return jsonify({
+            'message': 'Meta financeira atualizada com sucesso!',
+            'valor_atual': atualizacao.get('valor_atual', 0),
+            'meta_batida': atualizacao.get('meta_batida', False)
+        }), 200
     
     ################################################################################
     def delete_meta(self, meta_id: str) -> jsonify:

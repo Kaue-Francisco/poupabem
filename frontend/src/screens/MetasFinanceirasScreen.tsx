@@ -97,11 +97,14 @@ export default function MetasFinanceirasScreen() {
 
   const isMetaBatida = (meta: MetaFinanceira) => {
     if (!meta.valor_meta || meta.valor_meta === 0) return false;
-    
+  
+    const progresso = (meta.valor_atual / meta.valor_meta) * 100;
+  
     if (meta.tipo === 'despesa' || meta.tipo === 'categoria') {
-      return meta.valor_atual <= meta.valor_meta;
+      console.log('Meta Batida:', meta.titulo, progresso, meta.valor_atual, meta.valor_meta);
+      return progresso >= 100; // Corrigido para verificar se o progresso é maior ou igual a 100%
     } else {
-      return meta.valor_atual >= meta.valor_meta;
+      return progresso >= 100; // Mantido para outros tipos de metas
     }
   };
 

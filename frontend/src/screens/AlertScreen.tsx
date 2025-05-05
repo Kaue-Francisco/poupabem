@@ -40,7 +40,25 @@ export default function AlertScreen() {
                     },
                 });
                 const data = await response.json();
-                setAlerts(data.alertas || []);
+                console.log('Resposta completa da API:', data);
+                console.log('Alertas recebidos:', data.alertas);
+                
+                // Verifica se os alertas têm a estrutura correta
+                const alertasValidos = (data.alertas || []).filter((alert: any) => {
+                    const isValid = alert && 
+                        typeof alert.id === 'number' &&
+                        typeof alert.titulo === 'string' &&
+                        typeof alert.descricao === 'string' &&
+                        typeof alert.data_alerta === 'string';
+                    
+                    if (!isValid) {
+                        console.log('Alerta inválido:', alert);
+                    }
+                    
+                    return isValid;
+                });
+                
+                setAlerts(alertasValidos);
 
                 // Buscar alertas de hoje
                 const todayResponse = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.verificarAlerta(userId)}`, {
@@ -51,11 +69,43 @@ export default function AlertScreen() {
                     },
                 });
                 const todayData = await todayResponse.json();
-                setTodayAlerts(todayData.alertas_disparados || []);
+                console.log('Resposta completa dos alertas de hoje:', todayData);
+                console.log('Alertas de hoje:', todayData.alertas_disparados);
+                
+                // Verifica se os alertas de hoje têm a estrutura correta
+                const todayAlertsValidos = (todayData.alertas_disparados || []).filter((alert: any) => {
+                    const isValid = alert && 
+                        typeof alert.id === 'number' &&
+                        typeof alert.titulo === 'string' &&
+                        typeof alert.descricao === 'string' &&
+                        typeof alert.data_alerta === 'string';
+                    
+                    if (!isValid) {
+                        console.log('Alerta de hoje inválido:', alert);
+                    }
+                    
+                    return isValid;
+                });
+                
+                setTodayAlerts(todayAlertsValidos);
 
                 // Separar alertas futuros
-                const today = new Date().toISOString().split('T')[0];
-                const upcoming = (data.alertas || []).filter((alert: Alerta) => alert.data_alerta > today);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const upcoming = alertasValidos.filter((alert: Alerta) => {
+                    try {
+                        const [year, month, day] = alert.data_alerta.split('-').map(Number);
+                        const alertDate = new Date(year, month - 1, day);
+                        alertDate.setHours(0, 0, 0, 0);
+                        return alertDate >= today;
+                    } catch (error) {
+                        console.error('Erro ao processar data do alerta:', error);
+                        return false;
+                    }
+                });
+                
+                console.log('Alertas futuros:', upcoming);
                 setUpcomingAlerts(upcoming);
             }
         } catch (error) {
@@ -98,31 +148,39 @@ export default function AlertScreen() {
     };
 
     const formatDateDisplay = (dateString: string) => {
-        const [year, month, day] = dateString.split('-').map(Number);
-        const date = new Date(year, month - 1, day);
-        return date.toLocaleDateString('pt-BR');
+        try {
+            const [year, month, day] = dateString.split('-').map(Number);
+            const date = new Date(year, month - 1, day);
+            return date.toLocaleDateString('pt-BR');
+        } catch (error) {
+            console.error('Erro ao formatar data:', error);
+            return dateString;
+        }
     };
 
-    const renderAlertItem = ({ item, isToday }: { item: Alerta, isToday: boolean }) => (
-        <View style={[styles.card, isToday && styles.todayCard]}>
-            <View style={styles.cardHeader}>
-                <View style={styles.titleContainer}>
-                    <Text style={[styles.cardTitle, isToday && styles.todayText]}>{item.titulo}</Text>
+    const renderAlertItem = ({ item, isToday }: { item: Alerta, isToday: boolean }) => {
+        console.log('Renderizando alerta:', item);
+        return (
+            <View style={[styles.card, isToday && styles.todayCard]}>
+                <View style={styles.cardHeader}>
+                    <View style={styles.titleContainer}>
+                        <Text style={[styles.cardTitle, isToday && styles.todayText]}>{item.titulo}</Text>
+                    </View>
+                    <View style={styles.iconContainer}>
+                        {isToday && <Text style={styles.todayBadge}>HOJE</Text>}
+                        <TouchableOpacity onPress={() => handleEdit(item)}>
+                            <Icon name="edit" size={20} color="#1461de" style={styles.icon} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleDelete(item.id)}>
+                            <Icon name="trash" size={20} color="#FF6347" style={styles.icon} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <View style={styles.iconContainer}>
-                    {isToday && <Text style={styles.todayBadge}>HOJE</Text>}
-                    <TouchableOpacity onPress={() => handleEdit(item)}>
-                        <Icon name="edit" size={20} color="#1461de" style={styles.icon} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDelete(item.id)}>
-                        <Icon name="trash" size={20} color="#FF6347" style={styles.icon} />
-                    </TouchableOpacity>
-                </View>
+                <Text style={[styles.cardDescription, isToday && styles.todayText]}>{item.descricao}</Text>
+                <Text style={[styles.cardDate, isToday && styles.todayText]}>Data: {formatDateDisplay(item.data_alerta)}</Text>
             </View>
-            <Text style={[styles.cardDescription, isToday && styles.todayText]}>{item.descricao}</Text>
-            <Text style={[styles.cardDate, isToday && styles.todayText]}>Data: {formatDateDisplay(item.data_alerta)}</Text>
-        </View>
-    );
+        );
+    };
 
     return (
         <View style={styles.container}>
@@ -131,21 +189,24 @@ export default function AlertScreen() {
                     { title: 'Alertas de Hoje', data: todayAlerts, isToday: true },
                     { title: 'Próximos Alertas', data: upcomingAlerts, isToday: false },
                 ]}
-                renderItem={({ item }) => (
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>{item.title}</Text>
-                        {item.data.length > 0 ? (
-                            <FlatList
-                                data={item.data}
-                                renderItem={({ item: alert }) => renderAlertItem({ item: alert, isToday: item.isToday })}
-                                keyExtractor={(alert) => alert.id.toString()}
-                                scrollEnabled={false}
-                            />
-                        ) : (
-                            <Text style={styles.emptyText}>Nenhum alerta encontrado.</Text>
-                        )}
-                    </View>
-                )}
+                renderItem={({ item }) => {
+                    console.log('Renderizando seção:', item.title, 'com', item.data.length, 'alertas');
+                    return (
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>{item.title}</Text>
+                            {item.data.length > 0 ? (
+                                <FlatList
+                                    data={item.data}
+                                    renderItem={({ item: alert }) => renderAlertItem({ item: alert, isToday: item.isToday })}
+                                    keyExtractor={(alert) => alert.id.toString()}
+                                    scrollEnabled={false}
+                                />
+                            ) : (
+                                <Text style={styles.emptyText}>Nenhum alerta encontrado.</Text>
+                            )}
+                        </View>
+                    );
+                }}
                 keyExtractor={(item) => item.title}
             />
 
