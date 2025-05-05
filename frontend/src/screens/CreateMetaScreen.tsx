@@ -84,6 +84,30 @@ export default function CreateMetaScreen() {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const userId = payload.id;
 
+      // Verifica se o valor contém caracteres inválidos
+      if (valorMeta.includes('-')) {
+        Alert.alert('Erro', 'Não utilize o sinal de menos (-) no valor');
+        return;
+      }
+      else if (valorMeta.includes(' ')) {
+        Alert.alert('Erro', 'Não utilize espaços no valor');
+        return;
+      }
+  
+      // Verifica se o valor é um número válido e maior que zero
+      if (isNaN(parseFloat(valorMeta))) {
+        Alert.alert('Erro', 'O valor deve ser um número válido');
+        return;
+      }
+
+      if (parseFloat(valorMeta) <= 0) {
+        Alert.alert('Erro', 'O valor deve ser maior que zero');
+        return;
+      }
+
+      // Padroniza o valor de valorMeta para o padrão brasileiro
+      const valorMetaFormatado = valorMeta.replace('.', ',');
+
       const body = {
         meta_id: isEditing ? params.metaToEdit?.id : undefined,
         usuario_id: userId,

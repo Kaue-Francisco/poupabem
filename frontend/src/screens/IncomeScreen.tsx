@@ -66,7 +66,7 @@ export default function IncomeScreen() {
       await IncomeService.createIncome({
         categoria_id: parseInt(formData.category),
         valor: parseFloat(formData.amount),
-        data: new Date().toISOString().split('T')[0],
+        data: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
         descricao: formData.description,
       });
 
