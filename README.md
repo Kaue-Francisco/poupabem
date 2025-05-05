@@ -45,7 +45,7 @@ O projeto será realizado em 3 sprints.
 | 5        | Alta           | Como usuário quero poder visualizar o total de minhas despesas e receitas na tela princial | 1 | REQ-15 |
 | 6        | Alta           | Como usuário quero poder apagar alguma receita ou despesa que cadastrei | 1 | REQ-7 |
 | 7        | Alta           | Como usuário quero poder apagar alguma categoria e junto a ela as despesas vinculadas a ela | 1 | REQ-7 |
-| 8        | Alta           | Como usuário quero poder editar alguma categoria | 2 | REQ-15 |
+| 8        | Média           | Como usuário quero poder editar alguma categoria | 2 | REQ-15 |
 | 9        | Média          | Como usuário ao selecionar a categoria quero poder visualizar todas as receitas ou despesas vinculadas a ela | 2 | REQ-15 |
 | 10       | Média          | Como usuário quero poder adicionar imagens de comprovantes em minhas despesas | 2 | REQ-12 |
 | 11       | Média          | Como usuário quero poder configurar alertas quando meus gastos se aproximarem do limite definido | 2 | REQ-18 |
