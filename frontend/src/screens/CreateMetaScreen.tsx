@@ -147,7 +147,6 @@ export default function CreateMetaScreen() {
 
   const formatDateDisplay = (dateString: string) => {
     try {
-      console.log('Data recebida:', dateString);
   
       // Cria um objeto Date a partir da string recebida
       const date = new Date(dateString);

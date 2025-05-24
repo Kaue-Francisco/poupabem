@@ -40,6 +40,15 @@ export default function HomeScreen() {
     navigation.navigate('Alert');
   }
 
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
   const fetchReceitas = async (token: string, userId: number) => {
     try {
       const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.totalReceita(userId)}`, {
@@ -51,7 +60,7 @@ export default function HomeScreen() {
       });
       const data = await response.json();
       if (data.status) {
-        setReceitas(data.total);
+        setReceitas(Number(data.total));
       } else {
         console.error('Erro ao buscar receitas: Dados inválidos');
       }
@@ -71,7 +80,7 @@ export default function HomeScreen() {
       });
       const data = await response.json();
       if (data.status) {
-        setDespesas(data.total);
+        setDespesas(Number(data.total));
       } else {
         console.error('Erro ao buscar despesas: Dados inválidos');
       }
@@ -174,12 +183,12 @@ export default function HomeScreen() {
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              R$ {receitas}
+              {formatCurrency(receitas)}
             </Text>
           </TouchableOpacity>
           {showReceitasTooltip && (
             <View style={styles.tooltip}>
-              <Text style={styles.tooltipText}>R$ {receitas}</Text>
+              <Text style={styles.tooltipText}>{formatCurrency(receitas)}</Text>
             </View>
           )}
         </View>
@@ -191,12 +200,12 @@ export default function HomeScreen() {
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              R$ {despesas}
+              {formatCurrency(despesas)}
             </Text>
           </TouchableOpacity>
           {showDespesasTooltip && (
             <View style={styles.tooltip}>
-              <Text style={styles.tooltipText}>R$ {despesas}</Text>
+              <Text style={styles.tooltipText}>{formatCurrency(despesas)}</Text>
             </View>
           )}
         </View>

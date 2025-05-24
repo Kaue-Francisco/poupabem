@@ -40,8 +40,6 @@ export default function AlertScreen() {
                     },
                 });
                 const data = await response.json();
-                console.log('Resposta completa da API:', data);
-                console.log('Alertas recebidos:', data.alertas);
                 
                 // Verifica se os alertas têm a estrutura correta
                 const alertasValidos = (data.alertas || []).filter((alert: any) => {
@@ -50,10 +48,6 @@ export default function AlertScreen() {
                         typeof alert.titulo === 'string' &&
                         typeof alert.descricao === 'string' &&
                         typeof alert.data_alerta === 'string';
-                    
-                    if (!isValid) {
-                        console.log('Alerta inválido:', alert);
-                    }
                     
                     return isValid;
                 });
@@ -69,8 +63,6 @@ export default function AlertScreen() {
                     },
                 });
                 const todayData = await todayResponse.json();
-                console.log('Resposta completa dos alertas de hoje:', todayData);
-                console.log('Alertas de hoje:', todayData.alertas_disparados);
                 
                 // Verifica se os alertas de hoje têm a estrutura correta
                 const todayAlertsValidos = (todayData.alertas_disparados || []).filter((alert: any) => {
@@ -79,10 +71,6 @@ export default function AlertScreen() {
                         typeof alert.titulo === 'string' &&
                         typeof alert.descricao === 'string' &&
                         typeof alert.data_alerta === 'string';
-                    
-                    if (!isValid) {
-                        console.log('Alerta de hoje inválido:', alert);
-                    }
                     
                     return isValid;
                 });
@@ -105,7 +93,6 @@ export default function AlertScreen() {
                     }
                 });
                 
-                console.log('Alertas futuros:', upcoming);
                 setUpcomingAlerts(upcoming);
             }
         } catch (error) {
@@ -159,7 +146,6 @@ export default function AlertScreen() {
     };
 
     const renderAlertItem = ({ item, isToday }: { item: Alerta, isToday: boolean }) => {
-        console.log('Renderizando alerta:', item);
         return (
             <View style={[styles.card, isToday && styles.todayCard]}>
                 <View style={styles.cardHeader}>
@@ -190,7 +176,6 @@ export default function AlertScreen() {
                     { title: 'Próximos Alertas', data: upcomingAlerts, isToday: false },
                 ]}
                 renderItem={({ item }) => {
-                    console.log('Renderizando seção:', item.title, 'com', item.data.length, 'alertas');
                     return (
                         <View style={styles.section}>
                             <Text style={styles.sectionTitle}>{item.title}</Text>

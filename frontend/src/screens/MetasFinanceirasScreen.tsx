@@ -102,7 +102,6 @@ export default function MetasFinanceirasScreen() {
     const progresso = (meta.valor_atual / meta.valor_meta) * 100;
   
     if (meta.tipo === 'despesa' || meta.tipo === 'categoria') {
-      console.log('Meta Batida:', meta.titulo, progresso, meta.valor_atual, meta.valor_meta);
       return progresso >= 100; // Corrigido para verificar se o progresso é maior ou igual a 100%
     } else {
       return progresso >= 100; // Mantido para outros tipos de metas
@@ -148,7 +147,12 @@ export default function MetasFinanceirasScreen() {
   };
 
   const formatCurrency = (value: number) => {
-    return `R$ ${value.toFixed(2).replace('.', ',')}`;
+    return value.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
   };
 
   const metasBatidas = metas.filter(meta => isMetaBatida(meta));

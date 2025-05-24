@@ -51,9 +51,6 @@ export default function CreateAlertScreen() {
     selectedDate.setMinutes(selectedDate.getMinutes() + selectedDate.getTimezoneOffset());
     selectedDate.setHours(0, 0, 0, 0);
 
-    console.log('Selected Date:', selectedDate);
-    console.log('Today:', today);
-
     if (selectedDate < today) {
         Alert.alert('Erro', 'Não é possível criar alertas para dias anteriores');
         return;
