@@ -91,6 +91,7 @@ export default function MetasFinanceirasScreen() {
       return Math.min(progresso, 100);
     } else {
       const progresso = (meta.valor_atual / meta.valor_meta) * 100;
+      if (progresso < 0) return 0;
       return Math.min(progresso, 100);
     }
   };
