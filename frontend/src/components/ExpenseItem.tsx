@@ -6,12 +6,22 @@ type ExpenseItemProps = {
   expense: Expense;
 };
 
+// Função para formatar valores monetários
+const formatCurrency = (value: number) => {
+  return value.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
 export const ExpenseItem: React.FC<ExpenseItemProps> = ({ expense }) => {
   return (
     <View style={styles.expenseItem}>
       <View style={styles.expenseHeader}>
         <Text style={styles.expenseDescription}>{expense.description}</Text>
-        <Text style={styles.expenseAmount}>R$ {expense.amount}</Text>
+        <Text style={styles.expenseAmount}>{formatCurrency(expense.amount)}</Text>
       </View>
       <View style={styles.expenseFooter}>
         <Text style={styles.expenseCategory}>{expense.category}</Text>
@@ -62,4 +72,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#7F8C8D',
   },
-}); 
+});

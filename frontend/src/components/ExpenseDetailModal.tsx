@@ -20,6 +20,16 @@ type ExpenseDetailModalProps = {
 
 const { width } = Dimensions.get('window');
 
+// Função para formatar valores monetários
+const formatCurrency = (value: number) => {
+  return value.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
 export const ExpenseDetailModal: React.FC<ExpenseDetailModalProps> = ({
   visible,
   onClose,
@@ -27,7 +37,7 @@ export const ExpenseDetailModal: React.FC<ExpenseDetailModalProps> = ({
 }) => {
   const [imageExpanded, setImageExpanded] = useState(false);
   if (!expense) {
-    return null; // Retorna null se não houver despesa
+    return null;
   }
 
   return (
@@ -47,11 +57,27 @@ export const ExpenseDetailModal: React.FC<ExpenseDetailModalProps> = ({
           </View>
 
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            <Text>Descrição: {expense.description}</Text>
-            <Text>Valor: R$ {expense.amount.toFixed(2)}</Text>
-            <Text>Categoria: {expense.category}</Text>
-            <Text>Data: {expense.date}</Text>
-          </ScrollView>
+            <View style={styles.detailItem}>
+              <Text style={styles.label}>Descrição:</Text>
+              <Text style={styles.value}>{expense.description}</Text>
+            </View>
+            
+            <View style={styles.detailItem}>
+              <Text style={styles.label}>Valor:</Text>
+              <Text style={[styles.value, styles.amount]}>
+                {formatCurrency(expense.amount)}
+              </Text>
+            </View>
+            
+            <View style={styles.detailItem}>
+              <Text style={styles.label}>Categoria:</Text>
+              <Text style={styles.value}>{expense.category}</Text>
+            </View>
+            
+            <View style={styles.detailItem}>
+              <Text style={styles.label}>Data:</Text>
+              <Text style={styles.value}>{expense.date}</Text>
+            </View>
 
             {expense.image && expense.image !== 'null' && (
               <View style={styles.imageContainer}>
@@ -76,6 +102,7 @@ export const ExpenseDetailModal: React.FC<ExpenseDetailModalProps> = ({
                 </TouchableOpacity>
               </View>
             )}
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -112,9 +139,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  content: {
-    flex: 1,
-  },
   detailItem: {
     marginBottom: 10,
   },
@@ -128,7 +152,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   amount: {
-    color: '#27ae60',
+    color: '#E74C3C', // Vermelho para despesas
     fontWeight: 'bold',
   },
   imageContainer: {

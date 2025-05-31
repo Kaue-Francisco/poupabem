@@ -160,6 +160,15 @@ export default function CategoriesScreen() {
     setIsEditModalVisible(true);
   };
 
+  const formatCurrency = (value: number) => {
+  return value.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+    });
+  };
+
   const renderItem = ({ item }: { item: Category }) => {
     const total = parseFloat(totals[item.id] || '0');
     const limite = item.limite_gasto || 0;
@@ -188,10 +197,10 @@ export default function CategoriesScreen() {
         </View>
         <View style={styles.categoryInfo}>
           <Text style={styles.categoryType}>Tipo: {item.type}</Text>
-          <Text style={styles.categoryTotal}>Total: R$ {totals[item.id]}</Text>
+          <Text style={styles.categoryTotal}>Total: {formatCurrency(total)}</Text>
           {item.type === 'despesa' && item.limite_gasto && (
             <View style={styles.limitContainer}>
-              <Text style={styles.limitText}>Limite: R$ {item.limite_gasto.toFixed(2)}</Text>
+              <Text style={styles.limitText}>Limite: {formatCurrency(item.limite_gasto)}</Text>
               <View style={styles.progressBarContainer}>
                 <View 
                   style={[

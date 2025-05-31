@@ -38,6 +38,16 @@ export default function CategoryTransactionsModal({
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Função para formatar valores monetários
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
   useEffect(() => {
     if (visible) {
       fetchTransactions();
@@ -105,7 +115,7 @@ export default function CategoryTransactionsModal({
           { color: categoryType === 'despesa' ? '#FF6347' : '#32CD32' },
         ]}
       >
-        R$ {item.amount.toFixed(2)}
+        {formatCurrency(item.amount)}
       </Text>
     </View>
   );
@@ -195,4 +205,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-}); 
+});

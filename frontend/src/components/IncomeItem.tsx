@@ -6,12 +6,22 @@ type IncomeItemProps = {
   income: Income;
 };
 
+// Função para formatar valores monetários
+const formatCurrency = (value: number) => {
+  return value.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
 export const IncomeItem: React.FC<IncomeItemProps> = ({ income }) => {
   return (
     <View style={styles.incomeItem}>
       <View style={styles.incomeHeader}>
         <Text style={styles.incomeDescription}>{income.description}</Text>
-        <Text style={styles.incomeAmount}>R$ {income.amount}</Text>
+        <Text style={styles.incomeAmount}>{formatCurrency(income.amount)}</Text>
       </View>
       <View style={styles.incomeFooter}>
         <Text style={styles.incomeCategory}>{income.category}</Text>
@@ -62,4 +72,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#7F8C8D',
   },
-}); 
+});
