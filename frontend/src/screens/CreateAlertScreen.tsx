@@ -5,8 +5,31 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { apiConfig } from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Calendar } from 'react-native-calendars';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { jwtDecode } from 'jwt-decode';
+
+// Configuração da localização
+LocaleConfig.locales['pt'] = {
+  monthNames: [
+    'Janeiro',
+    'Fevereiro',
+    'Março',
+    'Abril',
+    'Maio',
+    'Junho',
+    'Julho',
+    'Agosto',
+    'Setembro',
+    'Outubro',
+    'Novembro',
+    'Dezembro'
+  ],
+  monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+  dayNames: ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
+  dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+};
+
+LocaleConfig.defaultLocale = 'pt';
 
 type CreateAlertScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'CreateAlert'>;
 type RouteParams = {
@@ -44,10 +67,9 @@ export default function CreateAlertScreen() {
     }
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Zera as horas para comparar apenas a data
+    today.setHours(0, 0, 0, 0);
 
     const selectedDate = new Date(dataAlerta);
-    // Ajustar o horário para compensar o fuso horário
     selectedDate.setMinutes(selectedDate.getMinutes() + selectedDate.getTimezoneOffset());
     selectedDate.setHours(0, 0, 0, 0);
 
@@ -107,7 +129,7 @@ export default function CreateAlertScreen() {
         console.error(`Erro ao ${isEditing ? 'atualizar' : 'criar'} alerta:`, error);
         Alert.alert('Erro', `Ocorreu um erro ao ${isEditing ? 'atualizar' : 'criar'} o alerta`);
     }
-};
+  };
 
   const formatDateDisplay = (dateString: string) => {
     const [year, month, day] = dateString.split('-').map(Number);
@@ -152,10 +174,27 @@ export default function CreateAlertScreen() {
       <Modal visible={calendarVisible} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.calendarBox}>
-            <Calendar onDayPress={(day) => {
-              setDataAlerta(day.dateString);
-              setCalendarVisible(false);
-            }} />
+            <Calendar
+              onDayPress={(day) => {
+                setDataAlerta(day.dateString);
+                setCalendarVisible(false);
+              }}
+              monthFormat={'MMMM yyyy'}
+              hideArrows={false}
+              hideExtraDays={true}
+              firstDay={0}
+              enableSwipeMonths={true}
+              theme={{
+                textMonthFontWeight: 'bold',
+                textMonthFontSize: 16,
+                monthTextColor: '#007AFF',
+                textSectionTitleColor: '#007AFF',
+                todayTextColor: '#FF0000',
+                dayTextColor: '#2d4150',
+                textDisabledColor: '#d9e1e8',
+                arrowColor: '#007AFF',
+              }}
+            />
             <TouchableOpacity 
               style={styles.cancelButton} 
               onPress={() => setCalendarVisible(false)}
@@ -228,4 +267,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
-}); 
+});

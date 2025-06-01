@@ -9,6 +9,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { jwtDecode } from 'jwt-decode';
 import CategoryTransactionsModal from '../components/CategoryTransactionsModal';
 import EditCategoryModal from '../components/EditCategoryModal';
+import { SetBudgetModal } from '../components/SetBudgetModal';
 
 type Category = {
   id: string;
@@ -27,7 +28,31 @@ export default function CategoriesScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null);
-  const navigation = useNavigation<CategoriesScreenNavigationProp>();
+  const navigation = useNavigation<CategoriesScreenNavigationProp>()
+  const [isBudgetModalVisible, setIsBudgetModalVisible] = useState(false);
+  const [categoryToSetBudget, setCategoryToSetBudget] = useState<Category | null>(null);
+
+  const handleSetBudgetPress = (category: Category) => {
+    setCategoryToSetBudget(category);
+    setIsBudgetModalVisible(true);
+  };
+
+  const handleSaveBudget = async (budget: number) => {
+    if (!categoryToSetBudget) return;
+    
+    // Aqui você normalmente faria a chamada API para salvar no backend
+    // Por enquanto, vamos apenas atualizar o estado local
+    setCategories(prevCategories => 
+      prevCategories.map(cat => 
+        cat.id === categoryToSetBudget.id 
+          ? { ...cat, limite_gasto: budget } 
+          : cat
+      )
+    );
+    
+    Alert.alert('Sucesso', 'Orçamento definido com sucesso!');
+  };
+
 
   // Função para buscar categorias
   const fetchCategories = async (token: string, userId: number) => {
@@ -187,6 +212,11 @@ export default function CategoriesScreen() {
         <View style={styles.categoryHeader}>
           <Text style={styles.categoryName}>{item.name}</Text>
           <View style={styles.iconContainer}>
+            {item.type === 'despesa' && (
+              <TouchableOpacity onPress={() => handleSetBudgetPress(item)}>
+                <Icon name="money" size={20} color="#27AE60" style={styles.icon} />
+              </TouchableOpacity>
+            )}
             <TouchableOpacity onPress={() => handleEditCategory(item)}>
               <Icon name="edit" size={20} color="#1461de" style={styles.icon} />
             </TouchableOpacity>
@@ -280,6 +310,16 @@ export default function CategoriesScreen() {
           category={categoryToEdit}
         />
       )}
+
+      {categoryToSetBudget && (
+      <SetBudgetModal
+        visible={isBudgetModalVisible}
+        onClose={() => setIsBudgetModalVisible(false)}
+        onSave={handleSaveBudget}
+        currentBudget={categoryToSetBudget.limite_gasto}
+        categoryName={categoryToSetBudget.name}
+      />
+    )}
     </View>
   );
 }
@@ -308,9 +348,10 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   icon: {
-    marginLeft: 10,
+    marginLeft: 12,
   },
   categoryInfo: {
     flex: 1,

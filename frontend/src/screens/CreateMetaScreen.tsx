@@ -1,12 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Modal } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { apiConfig } from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Calendar } from 'react-native-calendars';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
+
+// Configuração da localização em português
+LocaleConfig.locales['pt'] = {
+  monthNames: [
+    'Janeiro',
+    'Fevereiro',
+    'Março',
+    'Abril',
+    'Maio',
+    'Junho',
+    'Julho',
+    'Agosto',
+    'Setembro',
+    'Outubro',
+    'Novembro',
+    'Dezembro'
+  ],
+  monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+  dayNames: ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
+  dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+};
+
+LocaleConfig.defaultLocale = 'pt';
 
 type RouteParams = {
   metaToEdit?: {
@@ -147,7 +170,6 @@ export default function CreateMetaScreen() {
 
   const formatDateDisplay = (dateString: string) => {
     try {
-  
       // Cria um objeto Date a partir da string recebida
       const date = new Date(dateString);
   
@@ -242,16 +264,33 @@ export default function CreateMetaScreen() {
         </TouchableOpacity>
       </View>
 
-      {calendarVisible && (
+      <Modal visible={calendarVisible} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.calendarBox}>
-            <Calendar onDayPress={onDateSelected} />
+            <Calendar
+              onDayPress={onDateSelected}
+              monthFormat={'MMMM yyyy'}
+              hideArrows={false}
+              hideExtraDays={true}
+              firstDay={0} // 0 = Domingo
+              enableSwipeMonths={true}
+              theme={{
+                textMonthFontWeight: 'bold',
+                textMonthFontSize: 16,
+                monthTextColor: '#007AFF',
+                textSectionTitleColor: '#007AFF',
+                todayTextColor: '#FF0000',
+                dayTextColor: '#2d4150',
+                textDisabledColor: '#d9e1e8',
+                arrowColor: '#007AFF',
+              }}
+            />
             <TouchableOpacity onPress={() => setCalendarVisible(false)} style={styles.cancelButton}>
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>
           </View>
         </View>
-      )}
+      </Modal>
     </View>
   );
 }
@@ -291,4 +330,4 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     marginBottom: 10,
   },
-}); 
+});
