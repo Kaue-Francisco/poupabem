@@ -20,4 +20,6 @@ class Despesa(db.Model):
     data = db.Column(db.Date, nullable=False)
     descricao = db.Column(db.Text, nullable=False)
     imagem = db.Column(db.String(255), nullable=True)
+    latitude = db.Column(db.Numeric(10, 8), nullable=True)
+    longitude = db.Column(db.Numeric(11, 8), nullable=True)
     criado_em = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

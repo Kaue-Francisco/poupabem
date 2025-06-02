@@ -5,6 +5,8 @@ export type Expense = {
   date: string;
   category: string;
   image: string;
+  latitude: number;
+  longitude: number;
   criado_em: string;
 };
 

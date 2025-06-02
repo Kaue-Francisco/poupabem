@@ -25,6 +25,8 @@ class DespesaController:
         valor = data.get('valor')
         data_despesa = data.get('data')
         descricao = data.get('descricao')
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
         if 'image' in data:
             image = data.get('image')
 
@@ -39,7 +41,9 @@ class DespesaController:
             valor=valor,
             data=data_despesa,
             descricao=descricao,
-            image=image if 'image' in data else None
+            image=image if 'image' in data else None,
+            latitude=latitude if latitude is not None else None,
+            longitude=longitude if longitude is not None else None
         )
 
         if 'limite' in response and response['limite']:

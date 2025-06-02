@@ -78,3 +78,11 @@ def total_by_categoria(categoria_id: str) -> jsonify:
     return response
 
 ################################################################
+@categoria_routes.route('/orcamento_status/<categoria_id>', methods=['GET'])
+@token_authorization
+def get_orcamento_status(categoria_id: str) -> jsonify:
+    """ Rota para buscar o status do orçamento mensal de uma categoria de despesa """
+    response = categoria_controller.get_orcamento_status(categoria_id)
+    return response
+
+################################################################

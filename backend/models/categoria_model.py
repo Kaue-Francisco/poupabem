@@ -17,6 +17,7 @@ class Categoria(db.Model):
     nome = db.Column(db.String(255), nullable=False)
     tipo = db.Column(db.String(255), nullable=False)
     limite_gasto = db.Column(db.Numeric(10, 2), nullable=True)
+    orcamento_mensal = db.Column(db.Numeric(10, 2), nullable=True)  # Novo campo
     criado_em = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     __table_args__ = (

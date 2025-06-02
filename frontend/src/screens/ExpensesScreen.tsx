@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, Alert, Text, TouchableOpacity, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
+import * as Location from 'expo-location';
 import { ExpenseForm } from '../components/ExpenseForm';
 import { ExpenseItem } from '../components/ExpenseItem';
 import { ExpenseDetailModal } from '../components/ExpenseDetailModal';
@@ -22,6 +23,7 @@ export default function ExpensesScreen() {
     category: '',
     image: '',
   });
+  const [currentLocation, setCurrentLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -42,22 +44,38 @@ export default function ExpensesScreen() {
 
   useEffect(() => {
     fetchData();
+    requestLocationPermission();
   }, []);
+
+  const requestLocationPermission = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permissão negada', 'É necessário permitir o acesso à localização.');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setCurrentLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude
+      });
+    } catch (error) {
+      console.error('Erro ao obter localização:', error);
+    }
+  };
 
   const handleUploadImage = async (imageUri: string) => {
     try {
-      // Criar diretório se não existir
       const directory = `${FileSystem.documentDirectory}images`;
       const dirInfo = await FileSystem.getInfoAsync(directory);
       if (!dirInfo.exists) {
         await FileSystem.makeDirectoryAsync(directory, { intermediates: true });
       }
 
-      // Gerar nome único para o arquivo
       const fileName = `image_${Date.now()}.jpg`;
       const newPath = `${directory}/${fileName}`;
 
-      // Copiar a imagem para o diretório local
       await FileSystem.copyAsync({
         from: imageUri,
         to: newPath
@@ -76,7 +94,6 @@ export default function ExpensesScreen() {
       return;
     }
 
-    // Verifica se o valor contém caracteres inválidos
     if (formData.amount.includes('-')) {
       Alert.alert('Erro', 'Não utilize o sinal de menos (-) no valor');
       return;
@@ -86,7 +103,6 @@ export default function ExpensesScreen() {
       return;
     }
 
-    // Verifica se o valor é um número válido e maior que zero
     if (isNaN(parseFloat(formData.amount))) {
       Alert.alert('Erro', 'O valor deve ser um número válido');
       return;
@@ -108,6 +124,8 @@ export default function ExpensesScreen() {
         data: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
         descricao: formData.description,
         image: imagePath,
+        latitude: currentLocation?.latitude || 0,
+        longitude: currentLocation?.longitude || 0,
       });
 
       setFormData({ description: '', amount: '', category: '', image: '' });
@@ -237,5 +255,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginVertical: 10,
     borderRadius: 8,
+  },
+  mapContainer: {
+    height: 200,
+    marginBottom: 15,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  map: {
+    flex: 1,
   },
 });

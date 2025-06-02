@@ -5,6 +5,8 @@ from flask import request, jsonify                       # Registrar as rotas e 
 from services.categoria_service import CategoriaService  # Serviço de categoria
 from database_instance import database_config            # Instância do banco de dados
 from models.categoria_model import Categoria             # Modelo de categoria
+from sqlalchemy import func
+from datetime import datetime
 
 ################################################################
 # Defined
@@ -25,6 +27,7 @@ class CategoriaController:
         nome = data.get('nome')
         tipo = data.get('tipo')
         limite_gasto = data.get('limite_gasto')
+        orcamento_mensal = data.get('orcamento_mensal')
 
         # Valida os dados obrigatórios
         if not all([usuario_id, nome, tipo]):
@@ -39,7 +42,8 @@ class CategoriaController:
             usuario_id=usuario_id,
             nome=nome,
             tipo=tipo,
-            limite_gasto=limite_gasto
+            limite_gasto=limite_gasto,
+            orcamento_mensal=orcamento_mensal # Novo campo
         )
 
         # Retorna a resposta
@@ -97,6 +101,7 @@ class CategoriaController:
         nome = data.get('nome')
         tipo = data.get('tipo')
         limite_gasto = data.get('limite_gasto')
+        orcamento_mensal = data.get('orcamento_mensal')
 
         # Valida o tipo da categoria
         if tipo not in ['receita', 'despesa']:
@@ -116,7 +121,8 @@ class CategoriaController:
             categoria_id=categoria_id,
             nome=nome,
             tipo=tipo,
-            limite_gasto=limite_gasto
+            limite_gasto=limite_gasto,
+            orcamento_mensal=orcamento_mensal # Novo campo
         )
 
         # Retorna a resposta
@@ -132,6 +138,20 @@ class CategoriaController:
 
         return jsonify(response), 200
     
+    ################################################################
+    def get_orcamento_status(self, categoria_id: str) -> jsonify:
+        """ Método para buscar o status do orçamento mensal de uma categoria """
+
+        response = categoria_service.get_orcamento_status(categoria_id=categoria_id)
+
+        if 'error' in response:
+            return jsonify({'message': response['error']}), 400
+        
+        if response.get('status') == False:
+            return jsonify({'message': response['message']}), 404 # Or 400 depending on the message
+
+        return jsonify(response), 200
+
     ################################################################
     def total_by_categoria(self, categoria_id: str) -> jsonify:
         """ Método para buscar o total de categorias por usuário """

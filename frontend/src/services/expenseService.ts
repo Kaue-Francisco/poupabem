@@ -74,6 +74,8 @@ export class ExpenseService {
         category: categoriaEncontrada ? categoriaEncontrada.nome : 'Sem Categoria',
         image: expense.image,
         criado_em: expense.criado_em,
+        latitude: expense.latitude || 0,
+        longitude: expense.longitude || 0,
       };
     });
 
@@ -82,8 +84,7 @@ export class ExpenseService {
     );
   }
 
-  static async createExpense(expenseData: { categoria_id: number; valor: number; data: string; descricao: string; image: string }): Promise<void> {
-    const token = await this.getToken();
+  static async createExpense(expenseData: { categoria_id: number; valor: number; data: string; descricao: string; image: string, latitude: number, longitude: number }): Promise<void> {    const token = await this.getToken();
     const userId = await this.getUserId();
   
     const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.criarDespesa}`, {

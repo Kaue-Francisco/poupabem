@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   View,
@@ -9,6 +9,7 @@ import {
   Dimensions,
   ScrollView,
 } from 'react-native';
+import { WebView } from 'react-native-webview';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Expense } from '../types/expense';
 
@@ -36,6 +37,52 @@ export const ExpenseDetailModal: React.FC<ExpenseDetailModalProps> = ({
   expense,
 }) => {
   const [imageExpanded, setImageExpanded] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+
+  useEffect(() => {
+    if (expense) {
+      console.log('Dados de localização:', {
+        expense
+      });
+      
+      // Convertendo as strings para números
+      const lat = expense.latitude ? parseFloat(String(expense.latitude)) : 0;
+      const lng = expense.longitude ? parseFloat(String(expense.longitude)) : 0;
+      
+      setCurrentLocation({
+        latitude: lat,
+        longitude: lng
+      });
+
+      console.log('Localização convertida:', {
+        latitude: lat,
+        longitude: lng
+      });
+    }
+  }, [expense]);
+
+  const getMapHTML = () => {
+    if (!currentLocation || currentLocation.latitude === 0 || currentLocation.longitude === 0) {
+      return '';
+    }
+    
+    return `
+      <html>
+        <body style="margin:0;">
+          <iframe 
+            src="https://maps.google.com/maps?q=${currentLocation.latitude},${currentLocation.longitude}&z=15&output=embed&markers=color:red%7C${currentLocation.latitude},${currentLocation.longitude}"
+            width="100%"
+            height="100%"
+            style="border:0;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </body>
+      </html>
+    `;
+  };
+
   if (!expense) {
     return null;
   }
@@ -102,6 +149,23 @@ export const ExpenseDetailModal: React.FC<ExpenseDetailModalProps> = ({
                 </TouchableOpacity>
               </View>
             )}
+
+            {currentLocation && currentLocation.latitude !== 0 && currentLocation.longitude !== 0 && (
+              <View style={styles.mapContainer}>
+                <Text style={styles.label}>Localização:</Text>
+                <View style={styles.mapWrapper}>
+                  <WebView
+                    source={{ html: getMapHTML() }}
+                    style={styles.map}
+                    scrollEnabled={false}
+                    javaScriptEnabled={true}
+                  />
+                </View>
+                <Text style={styles.coordinatesText}>
+                  Lat: {currentLocation.latitude.toFixed(6)}, Long: {currentLocation.longitude.toFixed(6)}
+                </Text>
+              </View>
+            )}
           </ScrollView>
         </View>
       </View>
@@ -115,6 +179,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  coordinatesText: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 5,
+    textAlign: 'center',
   },
   scrollContent: {
     flexGrow: 1,
@@ -179,6 +249,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     borderRadius: 12,
     padding: 5,
+  },
+  mapContainer: {
+    marginTop: 15,
+  },
+  mapWrapper: {
+    height: 200,
+    marginTop: 5,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  map: {
+    flex: 1,
   },
 });
 

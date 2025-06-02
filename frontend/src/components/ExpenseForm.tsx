@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 import { Category } from '../types/expense';
 
 type ExpenseFormProps = {
@@ -42,6 +43,19 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
   onSubmit,
 }) => {
   const [image, setImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permissão negada', 'É necessário permitir o acesso à localização.');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      console.log('Localização atual:', location);
+    })();
+  }, []);
 
   const handleOpenCamera = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();

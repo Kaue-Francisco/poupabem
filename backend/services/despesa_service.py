@@ -16,7 +16,7 @@ class DespesaService:
         self.db_conn = db_conn
 
     ################################################################
-    def create_despesa(self, usuario_id: str, categoria_id: str, valor: float, data: str, descricao: str, image: str) -> dict:
+    def create_despesa(self, usuario_id: str, categoria_id: str, valor: float, data: str, descricao: str, image: str, latitude: float, longitude: float) -> dict:
         """ Método para criar uma nova despesa """
 
         try:
@@ -32,6 +32,8 @@ class DespesaService:
                 data=data,
                 descricao=descricao,
                 imagem=image,
+                latitude=latitude,
+                longitude=longitude,
             )
             self.db_conn.session.add(despesa)
             self.db_conn.session.commit()
@@ -146,6 +148,8 @@ class DespesaService:
             'data': despesa.data.isoformat(),
             'descricao': despesa.descricao,
             'image': despesa.imagem if despesa.imagem else None,
+            'latitude': despesa.latitude,
+            'longitude': despesa.longitude,
             'criado_em': despesa.criado_em.isoformat()
         }
     
