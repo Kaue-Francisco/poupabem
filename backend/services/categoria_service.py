@@ -4,6 +4,7 @@
 from models.categoria_model import Categoria  # Importa o modelo de categoria
 from models.despesa_model import Despesa          # Importa o modelo de despesa
 from models.receita_model import Receita          # Importa o modelo de receita
+from models.meta_financeira_model import MetaFinanceira
 from flask_sqlalchemy import SQLAlchemy       # Importa o SQLAlchemy para conexão com o banco de dados
 from sqlalchemy import func # Import for SQL functions like EXTRACT
 from datetime import datetime # Import for current date
@@ -72,19 +73,24 @@ class CategoriaService:
             if not categoria:
                 return {'status': False, 'message': 'Categoria não encontrada'}
 
-            # Apaga receitas ou despesas vinculadas à categoria
+            # Primeiro, deleta as metas financeiras vinculadas à categoria
+            self.db_conn.session.query(MetaFinanceira).filter_by(categoria_id=categoria_id).delete()
+
+            # Depois apaga receitas ou despesas vinculadas à categoria
             if categoria.tipo == 'receita':
                 self.db_conn.session.query(Receita).filter_by(categoria_id=categoria_id).delete()
             else:
                 self.db_conn.session.query(Despesa).filter_by(categoria_id=categoria_id).delete()
 
-            # Apaga a categoria
+            # Por fim, apaga a categoria
             self.db_conn.session.delete(categoria)
             self.db_conn.session.commit()
-        except Exception as e:
-            return {'error': str(e)}
 
-        return {'message': 'Categoria e registros vinculados deletados com sucesso!'}
+            return {'status': True, 'message': 'Categoria e registros vinculados deletados com sucesso!'}
+
+        except Exception as e:
+            self.db_conn.session.rollback()  # Adiciona rollback em caso de erro
+            return {'status': False, 'error': str(e)}
     
     ################################################################
     def update_categoria(self, categoria_id: str, nome: str, tipo: str, limite_gasto: float = None, orcamento_mensal: float = None) -> dict:
