@@ -26,6 +26,7 @@ export const apiConfig = {
     totalPorCategoria: (id: number) => `/categoria/total/${id}`,
     listarCategorias: (id: number) => `/categoria/${id}`,
     criarOrcamento: (id: number) => `/categoria/orcamento/${id}`,
+    orcamentoStatus: (id: number) => `/categoria/orcamento_status/${id}`,
     
     // Receitas
     criarReceita: '/receita/create',

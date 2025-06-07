@@ -20,26 +20,6 @@ const HomeScreen: React.FC = () => {
   const [dicas, setDicas] = useState<DicaItem>({});
   const [hasTodayAlerts, setHasTodayAlerts] = useState(false);
   const [activeTab, setActiveTab] = useState<'resumo' | 'orcamentos' | 'graficos'>('resumo');
-  const [budgets, setBudgets] = useState<BudgetItem[]>([
-    {
-      id: '1',
-      category: 'Alimentação',
-      spent: 650,
-      limit: 1000
-    },
-    {
-      id: '2',
-      category: 'Transporte',
-      spent: 300,
-      limit: 500
-    },
-    {
-      id: '3',
-      category: 'Lazer',
-      spent: 450,
-      limit: 400
-    }
-  ]);
 
   const handleCategorias = () => navigation.navigate('Categories');
   const handleDespesas = () => navigation.navigate('Expenses');
@@ -219,7 +199,6 @@ const HomeScreen: React.FC = () => {
 
       {activeTab === 'orcamentos' && (
         <OrcamentosScreen 
-          budgets={budgets}
           formatCurrency={formatCurrency}
         />
       )}

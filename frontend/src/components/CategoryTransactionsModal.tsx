@@ -85,13 +85,20 @@ export default function CategoryTransactionsModal({
       const dados = data.despesas || data.receitas;
 
       if (data.status && dados) {
-        const mappedTransactions = dados.map((trans: any) => ({
-          id: trans.id.toString(),
-          description: trans.descricao,
-          amount: trans.valor,
-          date: new Date(trans.data).toLocaleDateString('pt-BR'),
-          type: categoryType,
-        }));
+        const mappedTransactions = dados.map((trans: any) => {
+          // Parse the date string and handle time zone correctly
+          const [year, month, day] = trans.data.split('-').map(Number);
+          const formattedDate = new Date(year, month - 1, day).toLocaleDateString('pt-BR');
+          
+          return {
+            id: trans.id.toString(),
+            description: trans.descricao,
+            amount: trans.valor,
+            date: formattedDate,
+            type: categoryType,
+          };
+        });
+
         setTransactions(mappedTransactions);
       } else {
         console.warn('Dados inesperados no retorno da API:', data);
