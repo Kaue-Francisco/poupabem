@@ -177,5 +177,27 @@ class CategoriaController:
             return jsonify({'message': response['error']}), 400
 
         return jsonify(response), 200
+    
+    def create_orcamento(self, categoria_id: str, data: dict) -> jsonify:
+        """ Método para criar um orçamento mensal para uma categoria de despesa """
+
+        # Coleta os dados enviados pelo usuário
+        orcamento_mensal = data.get('orcamento_mensal')
+
+        # Valida os dados obrigatórios
+        if not orcamento_mensal:
+            return jsonify({'message': 'O valor do orçamento mensal é obrigatório.'}), 400
+
+        # Chama o método para criar o orçamento
+        response = categoria_service.create_orcamento(
+            categoria_id=categoria_id,
+            orcamento_mensal=orcamento_mensal
+        )
+
+        # Retorna a resposta
+        if 'error' in response:
+            return jsonify({'message': response['error']}), 400
+
+        return jsonify(response), 201
 
 ################################################################

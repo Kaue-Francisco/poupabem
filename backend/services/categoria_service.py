@@ -141,7 +141,7 @@ class CategoriaService:
             categoria.nome = nome
             categoria.tipo = tipo
             categoria.limite_gasto = limite_gasto
-            categoria.orcamento_mensal = orcamento_mensal if tipo == 'despesa' else None
+            categoria.orcamento_mensal = orcamento_mensal
             
             # Comita as alterações
             self.db_conn.session.commit()
@@ -242,5 +242,27 @@ class CategoriaService:
             'orcamento_mensal': float(categoria.orcamento_mensal) if categoria.orcamento_mensal else None, # Novo campo
             'criado_em': categoria.criado_em.isoformat()
         }
+    
+    def create_orcamento(self, categoria_id: str, orcamento_mensal: float) -> dict:
+        """ Método para criar um orçamento mensal para uma categoria de despesa """
+        try:
+            # Busca a categoria pelo ID
+            categoria = self.db_conn.session.query(Categoria).filter_by(id=categoria_id).first()
+            
+            if not categoria:
+                return {'status': False, 'message': 'Categoria não encontrada'}
+
+            if categoria.tipo != 'despesa':
+                return {'status': False, 'message': 'Orçamento mensal só pode ser definido para categorias do tipo "despesa".'}
+
+            # Atualiza o orçamento mensal da categoria
+            categoria.orcamento_mensal = orcamento_mensal
+            
+            self.db_conn.session.commit()
+
+            return {'status': True, 'message': 'Orçamento mensal criado com sucesso!'}
+        except Exception as e:
+            self.db_conn.session.rollback()
+            return {'error': str(e)}
 
 ################################################################

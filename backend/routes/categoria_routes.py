@@ -85,4 +85,12 @@ def get_orcamento_status(categoria_id: str) -> jsonify:
     response = categoria_controller.get_orcamento_status(categoria_id)
     return response
 
+@categoria_routes.route('/orcamento/<categoria_id>', methods=['PUT'])
+@token_authorization
+def create_orcamento(categoria_id: str) -> jsonify:
+    """ Rota para criar um orçamento mensal para uma categoria de despesa """
+    data = request.get_json()
+    response = categoria_controller.create_orcamento(categoria_id, data)
+    return response
+
 ################################################################

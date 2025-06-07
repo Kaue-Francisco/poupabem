@@ -17,6 +17,7 @@ type Category = {
   color: string;
   type: string;
   limite_gasto?: number;
+  orcamento_mensal?: number;
 };
 
 type CategoriesScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Categories'>;
@@ -31,21 +32,47 @@ export default function CategoriesScreen() {
   const navigation = useNavigation<CategoriesScreenNavigationProp>()
   const [isBudgetModalVisible, setIsBudgetModalVisible] = useState(false);
   const [categoryToSetBudget, setCategoryToSetBudget] = useState<Category | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
 
   const handleSetBudgetPress = (category: Category) => {
     setCategoryToSetBudget(category);
     setIsBudgetModalVisible(true);
   };
 
-  const handleSaveBudget = async (budget: number) => {
+  const handleSaveBudget = async (budget: number, categoriaId: number) => {
     if (!categoryToSetBudget) return;
     
     // Aqui você normalmente faria a chamada API para salvar no backend
     // Por enquanto, vamos apenas atualizar o estado local
-    setCategories(prevCategories => 
-      prevCategories.map(cat => 
-        cat.id === categoryToSetBudget.id 
-          ? { ...cat, limite_gasto: budget } 
+    // Certifique-se de que userId não é null antes de usar
+    if (userId === null) {
+      console.error('userId é null');
+      return;
+    }
+
+    const response = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.criarOrcamento(categoriaId)}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        orcamento_mensal: budget || 0,
+      }),
+    });
+
+    const data = await response.json();
+    if (!data.status) {
+      Alert.alert('Erro', 'Erro ao definir orçamento. Tente novamente mais tarde.');
+      return;
+    }
+
+    // Atualizar a categoria no estado local
+    setCategories((prevCategories) =>
+      prevCategories.map((cat) =>
+        cat.id === categoryToSetBudget.id
+          ? { ...cat, orcamento_mensal: budget }
           : cat
       )
     );
@@ -73,6 +100,7 @@ export default function CategoriesScreen() {
           color: cat.tipo === 'despesa' ? '#FF6347' : '#32CD32',
           type: cat.tipo,
           limite_gasto: cat.limite_gasto,
+          orcamento_mensal: cat.orcamento_mensal,
         }));
 
         setCategories(mappedCategories);
@@ -255,6 +283,35 @@ export default function CategoriesScreen() {
     );
   };
 
+  // Vai pegar o token do AsyncStorage e o ID do usuário do token JWT
+  useEffect(() => {
+    const loadTokenAndUserId = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem('userToken');
+        if (!storedToken) {
+          console.error('Token não encontrado');
+          return;
+        }
+        setToken(storedToken);
+        
+        const decodedToken = jwtDecode(storedToken) as { id: string };
+        const userId = parseInt(decodedToken.id);
+        
+        if (isNaN(userId)) {
+          console.error('ID do usuário inválido no token');
+          return;
+        }
+        setUserId(userId);
+        
+        fetchCategories(storedToken, userId);
+      } catch (error) {
+        console.error('Erro ao carregar token e ID do usuário:', error);
+      }
+    };
+
+    loadTokenAndUserId();
+  }, []);
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -315,8 +372,8 @@ export default function CategoriesScreen() {
       <SetBudgetModal
         visible={isBudgetModalVisible}
         onClose={() => setIsBudgetModalVisible(false)}
-        onSave={handleSaveBudget}
-        currentBudget={categoryToSetBudget.limite_gasto}
+        onSave={(budget: number) => handleSaveBudget(budget, Number(categoryToSetBudget.id))}
+        currentBudget={categoryToSetBudget.orcamento_mensal}
         categoryName={categoryToSetBudget.name}
       />
     )}

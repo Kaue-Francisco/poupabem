@@ -23,6 +23,7 @@ type EditCategoryModalProps = {
     name: string;
     type: string;
     limite_gasto?: number;
+    orcamento_mensal?: number;
   };
 };
 
@@ -35,6 +36,7 @@ export default function EditCategoryModal({
   const [name, setName] = useState(category.name);
   const [type, setType] = useState(category.type);
   const [limiteGasto, setLimiteGasto] = useState(category.limite_gasto?.toString() || '');
+  const [orcamentoMensal, setOrcamentoMensal] = useState(category.orcamento_mensal?.toString() || '');
   const [loading, setLoading] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
 
@@ -104,6 +106,7 @@ export default function EditCategoryModal({
           nome: name,
           tipo: type,
           limite_gasto: limiteGasto ? parseFloat(limiteGasto) : null,
+          orcamento_mensal: orcamentoMensal ? parseFloat(orcamentoMensal) : null,
         }),
       });
 
