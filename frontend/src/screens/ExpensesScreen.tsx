@@ -22,6 +22,7 @@ export default function ExpensesScreen() {
     amount: '',
     category: '',
     image: '',
+    date: new Date().toISOString().split('T')[0], // Data padrão: hoje
   });
   const [currentLocation, setCurrentLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
@@ -89,7 +90,7 @@ export default function ExpensesScreen() {
   };
 
   const handleAddExpense = async () => {
-    if (!formData.description.trim() || !formData.amount.trim() || !formData.category) {
+    if (!formData.description.trim() || !formData.amount.trim() || !formData.category || !formData.date) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos');
       return;
     }
@@ -112,6 +113,17 @@ export default function ExpensesScreen() {
       return;
     }
 
+    // Validação da data (não pode ser futura)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(formData.date);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate > today) {
+      Alert.alert('Erro', 'Não é possível adicionar despesas com data futura');
+      return;
+    }
+
     try {
       let imagePath = '';
       if (formData.image) {
@@ -121,14 +133,20 @@ export default function ExpensesScreen() {
       await ExpenseService.createExpense({
         categoria_id: parseInt(formData.category),
         valor: parseFloat(formData.amount),
-        data: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
+        data: formData.date,
         descricao: formData.description,
         image: imagePath,
         latitude: currentLocation?.latitude || 0,
         longitude: currentLocation?.longitude || 0,
       });
 
-      setFormData({ description: '', amount: '', category: '', image: '' });
+      setFormData({ 
+        description: '', 
+        amount: '', 
+        category: '', 
+        image: '',
+        date: new Date().toISOString().split('T')[0] // Reset para data atual
+      });
       setImage(null);
       await fetchData();
     } catch (error) {
@@ -176,11 +194,13 @@ export default function ExpensesScreen() {
         imageUrl={formData.image}
         amount={formData.amount}
         category={formData.category}
+        date={formData.date}
         categories={categories}
         loading={loading}
         onDescriptionChange={(text) => setFormData({ ...formData, description: text })}
         onAmountChange={(text) => setFormData({ ...formData, amount: text })}
         onCategoryChange={(value) => setFormData({ ...formData, category: value })}
+        onDateChange={(date) => setFormData({ ...formData, date })}
         onImageChange={(uri) => setFormData({ ...formData, image: uri || '' })}
         onSubmit={handleAddExpense}
       />

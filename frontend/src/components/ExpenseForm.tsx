@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,23 +8,49 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Modal,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as ImagePicker from 'expo-image-picker';
-import * as Location from 'expo-location';
 import { Category } from '../types/expense';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
+
+// Configuração da localização
+LocaleConfig.locales['pt'] = {
+  monthNames: [
+    'Janeiro',
+    'Fevereiro',
+    'Março',
+    'Abril',
+    'Maio',
+    'Junho',
+    'Julho',
+    'Agosto',
+    'Setembro',
+    'Outubro',
+    'Novembro',
+    'Dezembro'
+  ],
+  monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+  dayNames: ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
+  dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+};
+
+LocaleConfig.defaultLocale = 'pt';
 
 type ExpenseFormProps = {
   description: string;
   imageUrl: string | null;
   amount: string;
   category: string;
+  date: string;
   categories: Category[];
   loading: boolean;
   onDescriptionChange: (text: string) => void;
   onAmountChange: (text: string) => void;
   onCategoryChange: (value: string) => void;
+  onDateChange: (date: string) => void;
   onImageChange: (uri: string | null) => void;
   onSubmit: () => void;
 };
@@ -34,28 +60,25 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
   imageUrl,
   amount,
   category,
+  date,
   categories,
   loading,
   onDescriptionChange,
   onAmountChange,
   onCategoryChange,
+  onDateChange,
   onImageChange,
   onSubmit,
 }) => {
   const [image, setImage] = useState<string | null>(null);
+  const [calendarVisible, setCalendarVisible] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permissão negada', 'É necessário permitir o acesso à localização.');
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-      console.log('Localização atual:', location);
-    })();
-  }, []);
+  const formatDateDisplay = (dateString: string) => {
+    if (!dateString) return 'Selecionar Data';
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString('pt-BR');
+  };
 
   const handleOpenCamera = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -95,6 +118,13 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
         onChangeText={onAmountChange}
         keyboardType="numeric"
       />
+      <TouchableOpacity 
+        style={styles.input} 
+        onPress={() => setCalendarVisible(true)}
+      >
+        <Text>{formatDateDisplay(date)}</Text>
+      </TouchableOpacity>
+
       {loading ? (
         <ActivityIndicator size="large" color="#3498DB" />
       ) : (
@@ -112,6 +142,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
           </Picker>
         </View>
       )}
+      
       <TouchableOpacity style={styles.cameraButton} onPress={handleOpenCamera}>
         <Text style={{ color: '#fff', fontWeight: 'bold' }}>Adicionar Imagem</Text>
         <Icon name="camera" size={24} color="#fff" />
@@ -139,12 +170,59 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
         style={styles.addButton}
         onPress={() => {
           onSubmit();
-          setImage(null); // Limpa a imagem
-          onImageChange(null); // Reseta a imagem no estado pai
+          setImage(null);
+          onImageChange(null);
         }}
       >
         <Text style={styles.addButtonText}>Adicionar Despesa</Text>
       </TouchableOpacity>
+
+      <Modal visible={calendarVisible} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.calendarBox}>
+            <Calendar
+              onDayPress={(day) => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const selectedDate = new Date(day.dateString);
+                selectedDate.setHours(0, 0, 0, 0);
+
+                if (selectedDate > today) {
+                  Alert.alert('Erro', 'Não é possível selecionar uma data futura');
+                  return;
+                }
+
+                onDateChange(day.dateString);
+                setCalendarVisible(false);
+              }}
+              monthFormat={'MMMM yyyy'}
+              hideArrows={false}
+              hideExtraDays={true}
+              firstDay={0}
+              enableSwipeMonths={true}
+              markedDates={{
+                [date]: {selected: true, selectedColor: '#3498DB'}
+              }}
+              theme={{
+                textMonthFontWeight: 'bold',
+                textMonthFontSize: 16,
+                monthTextColor: '#3498DB',
+                textSectionTitleColor: '#3498DB',
+                todayTextColor: '#FF0000',
+                dayTextColor: '#2d4150',
+                textDisabledColor: '#d9e1e8',
+                arrowColor: '#3498DB',
+              }}
+            />
+            <TouchableOpacity 
+              style={styles.cancelButton} 
+              onPress={() => setCalendarVisible(false)}
+            >
+              <Text style={styles.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -185,6 +263,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
+  label: {
+    fontSize: 14,
+    marginBottom: 5,
+    color: '#7F8C8D',
+  },
   input: {
     height: 45,
     borderColor: '#BDC3C7',
@@ -193,6 +276,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
     backgroundColor: '#ECF0F1',
+    justifyContent: 'center',
   },
   cameraButton: {
     flexDirection: 'row',
@@ -228,5 +312,29 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  calendarBox: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '90%',
+  },
+  cancelButton: {
+    backgroundColor: '#888',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
