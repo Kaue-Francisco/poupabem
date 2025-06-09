@@ -1,12 +1,35 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity, Modal, Alert } from 'react-native';
 import { useEffect, useState } from 'react';
 import { apiConfig } from '../../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {jwtDecode} from 'jwt-decode';
 import { PieChart, LineChart } from 'react-native-chart-kit';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import moment from 'moment';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
+
+// Configuração da localização
+LocaleConfig.locales['pt'] = {
+  monthNames: [
+    'Janeiro',
+    'Fevereiro',
+    'Março',
+    'Abril',
+    'Maio',
+    'Junho',
+    'Julho',
+    'Agosto',
+    'Setembro',
+    'Outubro',
+    'Novembro',
+    'Dezembro'
+  ],
+  monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+  dayNames: ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
+  dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+};
+
+LocaleConfig.defaultLocale = 'pt';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -30,10 +53,9 @@ const GraficosScreen: React.FC = () => {
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
   const [startDate, setStartDate] = useState<Date>(moment().startOf('month').toDate());
   const [endDate, setEndDate] = useState<Date>(moment().endOf('month').toDate());
-  const [isStartDatePickerVisible, setStartDatePickerVisibility] = useState(false);
-  const [isEndDatePickerVisible, setEndDatePickerVisibility] = useState(false);
   const [hasData, setHasData] = useState(true);
   const [categories, setCategories] = useState<any[]>([]);
+  const [calendarVisible, setCalendarVisible] = useState<'start' | 'end' | null>(null);
 
   const categoryColors = [
     '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', 
@@ -59,7 +81,6 @@ const GraficosScreen: React.FC = () => {
         }
         setUserId(userId);
         
-        // Carregar categorias primeiro
         const categoriasResponse = await fetch(`${apiConfig.baseUrl}${apiConfig.endpoints.listarCategorias(userId)}`, {
           method: 'GET',
           headers: {
@@ -70,7 +91,6 @@ const GraficosScreen: React.FC = () => {
         const todasCategorias = await categoriasResponse.json();
         setCategories(todasCategorias.categorias || []);
         
-        // Depois carregar despesas e receitas
         fetchData(storedToken, userId);
       } catch (error) {
         console.error('Erro ao carregar token e ID do usuário:', error);
@@ -119,7 +139,6 @@ const GraficosScreen: React.FC = () => {
     const start = moment(startDate).startOf('day');
     const end = moment(endDate).endOf('day');
 
-    // Filtrar despesas e receitas pelo período
     const filteredExpenses = allExpenses.filter((expense: any) => {
       const expenseDate = moment(expense.data);
       return expenseDate.isBetween(start, end, null, '[]');
@@ -134,17 +153,14 @@ const GraficosScreen: React.FC = () => {
     setHasData(hasDataToShow);
 
     if (hasDataToShow) {
-      // Calcular totais
       const totalExpensesValue = filteredExpenses.reduce((sum: number, expense: any) => sum + expense.valor, 0);
       const totalIncomesValue = filteredIncomes.reduce((sum: number, income: any) => sum + income.valor, 0);
       
       setTotalExpenses(totalExpensesValue);
       setTotalIncomes(totalIncomesValue);
       
-      // Processar categorias de despesas
       const expenseCategories = categories.filter((cat: any) => cat.tipo === 'despesa');
       
-      // Agrupar despesas por categoria_id
       const expensesByCategoryId = new Map();
       filteredExpenses.forEach((expense: any) => {
         const categoryId = expense.categoria_id;
@@ -154,10 +170,8 @@ const GraficosScreen: React.FC = () => {
         );
       });
 
-      // Preparar dados para o gráfico
       const expensesByCat = [];
       
-      // Adicionar categorias encontradas nas despesas
       expensesByCategoryId.forEach((amount, categoryId) => {
         const category = categories.find(cat => cat.id === categoryId);
         if (category) {
@@ -169,7 +183,6 @@ const GraficosScreen: React.FC = () => {
             legendFontSize: 12,
           });
         } else {
-          // Se a categoria não for encontrada (pode ser deletada)
           expensesByCat.push({
             name: `Categoria ${categoryId} (não encontrada)`,
             amount: amount,
@@ -180,12 +193,10 @@ const GraficosScreen: React.FC = () => {
         }
       });
 
-      // Ordenar por valor decrescente
       expensesByCat.sort((a, b) => b.amount - a.amount);
       
       setExpensesByCategory(expensesByCat);
       
-      // Calcular evolução mensal
       const monthlyExpenses: Record<string, number> = {};
       const monthlyIncomes: Record<string, number> = {};
       
@@ -219,30 +230,25 @@ const GraficosScreen: React.FC = () => {
     }
   };
 
-  const showStartDatePicker = () => {
-    setStartDatePickerVisibility(true);
+  const formatDateDisplay = (date: Date) => {
+    return moment(date).format('DD/MM/YYYY');
   };
 
-  const hideStartDatePicker = () => {
-    setStartDatePickerVisibility(false);
-  };
+  const handleDateSelect = (day: any) => {
+    const today = moment().startOf('day');
+    const selectedDate = moment(day.dateString).startOf('day');
 
-  const handleStartDateConfirm = (date: Date) => {
-    setStartDate(date);
-    hideStartDatePicker();
-  };
+    if (selectedDate.isAfter(today)) {
+      Alert.alert('Erro', 'Não é possível selecionar uma data futura');
+      return;
+    }
 
-  const showEndDatePicker = () => {
-    setEndDatePickerVisibility(true);
-  };
-
-  const hideEndDatePicker = () => {
-    setEndDatePickerVisibility(false);
-  };
-
-  const handleEndDateConfirm = (date: Date) => {
-    setEndDate(date);
-    hideEndDatePicker();
+    if (calendarVisible === 'start') {
+      setStartDate(selectedDate.toDate());
+    } else if (calendarVisible === 'end') {
+      setEndDate(selectedDate.toDate());
+    }
+    setCalendarVisible(null);
   };
 
   const renderNoDataMessage = () => (
@@ -258,35 +264,61 @@ const GraficosScreen: React.FC = () => {
         
         {/* Seletor de Período */}
         <View style={styles.dateSelectorContainer}>
-          <TouchableOpacity onPress={showStartDatePicker} style={styles.dateButton}>
+          <TouchableOpacity 
+            onPress={() => setCalendarVisible('start')} 
+            style={styles.dateButton}
+          >
             <Text style={styles.dateButtonText}>
-              De: {moment(startDate).format('DD/MM/YYYY')}
+              De: {formatDateDisplay(startDate)}
             </Text>
           </TouchableOpacity>
           
-          <TouchableOpacity onPress={showEndDatePicker} style={styles.dateButton}>
+          <TouchableOpacity 
+            onPress={() => setCalendarVisible('end')} 
+            style={styles.dateButton}
+          >
             <Text style={styles.dateButtonText}>
-              Até: {moment(endDate).format('DD/MM/YYYY')}
+              Até: {formatDateDisplay(endDate)}
             </Text>
           </TouchableOpacity>
         </View>
 
-        <DateTimePickerModal
-          isVisible={isStartDatePickerVisible}
-          mode="date"
-          onConfirm={handleStartDateConfirm}
-          onCancel={hideStartDatePicker}
-          maximumDate={endDate}
-        />
-
-        <DateTimePickerModal
-          isVisible={isEndDatePickerVisible}
-          mode="date"
-          onConfirm={handleEndDateConfirm}
-          onCancel={hideEndDatePicker}
-          minimumDate={startDate}
-          maximumDate={new Date()}
-        />
+        <Modal visible={calendarVisible !== null} transparent animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.calendarBox}>
+              <Calendar
+                onDayPress={handleDateSelect}
+                monthFormat={'MMMM yyyy'}
+                hideArrows={false}
+                hideExtraDays={true}
+                firstDay={0}
+                enableSwipeMonths={true}
+                markedDates={{
+                  [moment(startDate).format('YYYY-MM-DD')]: {selected: true, selectedColor: '#3498DB'},
+                  [moment(endDate).format('YYYY-MM-DD')]: {selected: true, selectedColor: '#3498DB'}
+                }}
+                theme={{
+                  textMonthFontWeight: 'bold',
+                  textMonthFontSize: 16,
+                  monthTextColor: '#3498DB',
+                  textSectionTitleColor: '#3498DB',
+                  todayTextColor: '#FF0000',
+                  dayTextColor: '#2d4150',
+                  textDisabledColor: '#d9e1e8',
+                  arrowColor: '#3498DB',
+                }}
+                minDate={'2000-01-01'}
+                maxDate={moment().format('YYYY-MM-DD')}
+              />
+              <TouchableOpacity 
+                style={styles.cancelButton} 
+                onPress={() => setCalendarVisible(null)}
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
         {!hasData ? (
           renderNoDataMessage()
@@ -504,6 +536,30 @@ const styles = StyleSheet.create({
     color: '#999',
     marginVertical: 20,
     fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  calendarBox: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '90%',
+  },
+  cancelButton: {
+    backgroundColor: '#888',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

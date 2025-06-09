@@ -64,7 +64,7 @@ const ResumoScreen: React.FC<ResumoProps> = ({
           {Object.entries(dicas).map(([data, quantidade]) => (
             <View key={data} style={styles.dicaItem}>
               <Text style={styles.dicaText}>
-                Você registrou {quantidade} despesas em {new Date(data).toLocaleDateString('pt-BR')}
+                Você registrou {quantidade} despesas em {new Date(data + 'T00:00:00').toLocaleDateString('pt-BR')}
               </Text>
               <Text style={styles.dicaAviso}>
                 {quantidade > 3 ? 'Cuidado! Você está gastando muito hoje.' : 'Continue controlando seus gastos!'}
