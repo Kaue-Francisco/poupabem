@@ -7,6 +7,7 @@ import { apiConfig } from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { jwtDecode } from 'jwt-decode';
+import * as Notifications from 'expo-notifications';
 
 type AlertScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Alert'>;
 
@@ -22,7 +23,30 @@ export default function AlertScreen() {
     const [alerts, setAlerts] = useState<Alerta[]>([]);
     const [todayAlerts, setTodayAlerts] = useState<Alerta[]>([]);
     const [upcomingAlerts, setUpcomingAlerts] = useState<Alerta[]>([]);
+    const [notifiedAlerts, setNotifiedAlerts] = useState<Set<number>>(new Set());
     const navigation = useNavigation<AlertScreenNavigationProp>();
+
+    const handleNotification = async (titulo: string, descricao: string): Promise<void> => {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    
+        let finalStatus = existingStatus;
+        if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+        }
+    
+        if (finalStatus !== 'granted') {
+            return;
+        }
+    
+        await Notifications.scheduleNotificationAsync({
+            content: {
+                title: titulo,
+                body: descricao,
+            },
+            trigger: null, // Envia imediatamente
+        });
+    };
 
     const fetchAlerts = useCallback(async () => {
         try {
@@ -76,6 +100,16 @@ export default function AlertScreen() {
                 });
                 
                 setTodayAlerts(todayAlertsValidos);
+
+                todayAlertsValidos.forEach(async (alert) => {
+                    if (!notifiedAlerts.has(alert.id)) {
+                        await handleNotification(
+                            `Alerta: ${alert.titulo}`,
+                            `Você tem um alerta para hoje: ${alert.descricao}`
+                        );
+                        setNotifiedAlerts(prev => new Set([...prev, alert.id]));
+                    }
+                });
 
                 // Separar alertas futuros
                 const today = new Date();
@@ -167,6 +201,19 @@ export default function AlertScreen() {
             </View>
         );
     };
+
+    useEffect(() => {
+        // Configuração das notificações
+    Notifications.setNotificationHandler({
+            handleNotification: async () => ({
+                shouldShowAlert: true,
+                shouldPlaySound: true,
+                shouldSetBadge: true,
+                shouldShowBanner: true,
+                shouldShowList: true,
+            }),
+        });
+    }, []);
 
     return (
         <View style={styles.container}>
