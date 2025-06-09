@@ -13,6 +13,7 @@ export default function IncomeScreen() {
     description: '',
     amount: '',
     category: '',
+    date: new Date().toISOString().split('T')[0], // Data padrão: hoje
   });
 
   const fetchData = async () => {
@@ -66,11 +67,11 @@ export default function IncomeScreen() {
       await IncomeService.createIncome({
         categoria_id: parseInt(formData.category),
         valor: parseFloat(formData.amount),
-        data: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
+        data: formData.date,
         descricao: formData.description,
       });
 
-      setFormData({ description: '', amount: '', category: '' });
+      setFormData({ description: '', amount: '', category: '', date: new Date().toISOString().split('T')[0] }); // Reset form data
       await fetchData();
       Alert.alert('Sucesso', 'Receita adicionada com sucesso');
     } catch (error) {
@@ -114,9 +115,11 @@ export default function IncomeScreen() {
         category={formData.category}
         categories={categories}
         loading={loading}
+        date={formData.date}
         onDescriptionChange={(text) => setFormData({ ...formData, description: text })}
         onAmountChange={(text) => setFormData({ ...formData, amount: text })}
         onCategoryChange={(value) => setFormData({ ...formData, category: value })}
+        onDateChange={(date) => setFormData({ ...formData, date })}
         onSubmit={handleAddIncome}
       />
 
