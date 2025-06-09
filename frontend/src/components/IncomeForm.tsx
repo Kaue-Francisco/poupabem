@@ -85,7 +85,7 @@ export const IncomeForm: React.FC<IncomeFormProps> = ({
         style={styles.input} 
         onPress={() => setCalendarVisible(true)}
       >
-        <Text>{formatDateDisplay(date)}</Text>
+        <Text style={styles.dateText}>{formatDateDisplay(date)}</Text>
       </TouchableOpacity>
       {loading ? (
         <ActivityIndicator size="large" color="#3498DB" />
@@ -185,6 +185,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
     backgroundColor: '#ECF0F1',
+    justifyContent: 'center', // Mantém a centralização vertical
+  },
+  dateText: {
+    textAlign: 'left', // Alinha o texto à esquerda
+    color: '#2C3E50', // Cor mais escura para melhor legibilidade
+    fontSize: 14, // Tamanho da fonte consistente
   },
   pickerContainer: {
     borderWidth: 1,
